@@ -1,13 +1,19 @@
+import os
 from datetime import datetime
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, LineChart, Reference
 from openpyxl.chart.label import DataLabelList
 from openpyxl.chart.shapes import GraphicalProperties
+from openpyxl.drawing.image import Image as ImagemExcel
 from openpyxl.drawing.line import LineProperties
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 from openpyxl.utils import get_column_letter
 
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CAMINHO_LOGO = os.path.join(BASE_DIR, "static", "img", "logo_santa_fe.png")
+ALTURA_LOGO_PX = 72
 
 FONTE = "Arial"
 
@@ -25,7 +31,9 @@ COR_BORDA = "D9D9D9"
 
 # Escala monocromática 1 do Excel (tons de azul, derivados do Accent 1 do tema Office):
 # do mais claro ao mais escuro — DAE3F3, B4C7E7, 8EA9DB, 4472C4, 2E5395, 1F3864.
-# Único destaque fora da escala é o amarelo/dourado da linha de % acumulado do Pareto.
+# Exceções mantidas fora da escala, para destaque/legibilidade: o amarelo/dourado da
+# linha de % acumulado do Pareto e a paleta colorida do gráfico de causas (várias
+# causas lado a lado ficam difíceis de distinguir só com tons de azul).
 COR_LINHA_MENSAL = "2E5395"
 COR_INDICE = "4472C4"
 COR_RDC_ANO = "1F3864"
@@ -35,7 +43,12 @@ COR_FILIAL = "8EA9DB"
 COR_MATRIZ = "1F3864"
 COR_TOTAL_LINHA = "4472C4"
 
-PALETA_CAUSAS = ["4472C4", "8EA9DB", "2E5395", "B4C7E7", "1F3864", "DAE3F3"]
+PALETA_CAUSAS = [
+    "2563EB", "16A34A", "DC2626", "F59E0B", "8B5CF6", "06B6D4",
+    "EC4899", "84CC16", "F97316", "14B8A6", "A855F7", "EAB308",
+    "EF4444", "22C55E", "3B82F6", "D946EF", "0EA5E9", "FACC15",
+    "F43F5E", "10B981", "6366F1", "FB923C", "C026D3", "65A30D",
+]
 
 BORDA_FINA = Border(
     top=Side(style="thin", color=COR_BORDA),
@@ -137,10 +150,22 @@ def _preencher(cor):
     return PatternFill("solid", fgColor=cor)
 
 
+def _inserir_logo(ws):
+    if not os.path.exists(CAMINHO_LOGO):
+        return
+    logo = ImagemExcel(CAMINHO_LOGO)
+    proporcao = logo.width / logo.height
+    logo.height = ALTURA_LOGO_PX
+    logo.width = ALTURA_LOGO_PX * proporcao
+    ws.add_image(logo, "A1")
+
+
 def _titulo(ws, titulo, subtitulo, num_colunas):
     ultima_coluna = get_column_letter(max(num_colunas + 1, 7))
     ws.merge_cells(f"B1:{ultima_coluna}2")
     ws.merge_cells(f"B3:{ultima_coluna}3")
+
+    _inserir_logo(ws)
 
     celula_titulo = ws["B1"]
     celula_titulo.value = titulo
