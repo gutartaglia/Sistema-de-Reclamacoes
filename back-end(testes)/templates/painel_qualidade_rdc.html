@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Painel de Qualidade — RDC</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 30px;
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #ffffff;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* CABEÇALHO */
+
+    .cabecalho {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    h1 {
+        margin: 0;
+        color: #ffffff;
+    }
+
+    /* CARD */
+
+    .card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .titulo-card {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #333;
+        color: #ffffff;
+    }
+
+    /* GRID */
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    /* CAMPOS */
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .campo label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #999;
+        margin-bottom: 7px;
+    }
+
+    .valor {
+        width: 100%;
+        padding: 12px;
+        background-color: #292929;
+        border: 1px solid #3a3a3a;
+        border-radius: 7px;
+        min-height: 42px;
+        color: #eeeeee;
+    }
+
+    .valor:hover {
+        border-color: #555;
+    }
+
+    .campo.endereco {
+        grid-column: span 2;
+    }
+
+    .linha-email {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .linha-email .valor {
+        flex: 1;
+    }
+
+    .btn-remover-email {
+        display: none;
+        width: 42px;
+        flex-shrink: 0;
+        background: #3a1f1f;
+        border: 1px solid #a33;
+        color: #ff9d9d;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0;
+    }
+
+    .btn-remover-email:hover {
+        background: #4a2626;
+    }
+
+    .btn-adicionar-email {
+        display: none;
+        width: auto;
+        background: transparent;
+        border: 1px dashed #555;
+        color: #9ca6b5;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: normal;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    .btn-adicionar-email:hover {
+        background: #292929;
+        border-color: #2563eb;
+        color: #ffffff;
+    }
+
+    /* BOTÕES */
+
+    .botoes {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #333;
+    }
+
+    .botao {
+        display: inline-block;
+        padding: 11px 20px;
+        border-radius: 7px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    /* VOLTAR */
+
+    .voltar {
+        background-color: #333333;
+        color: #ffffff;
+    }
+
+    .voltar:hover {
+        background-color: #444444;
+    }
+
+    /* EDITAR */
+
+    .editar {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+
+    .editar:hover {
+        background-color: #0069d9;
+    }
+
+    /* RESPONSIVO */
+
+    @media (max-width: 600px) {
+
+        body {
+            padding: 15px;
+        }
+
+        .grid {
+            grid-template-columns: 1fr;
+        }
+
+        .campo.endereco {
+            grid-column: span 1;
+        }
+
+        .cabecalho {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.botao {
+    border: none;
+    padding: 11px 18px;
+    border-radius: 7px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.voltar {
+    background: #292d36;
+    color: #ffffff;
+}
+
+.editar {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.salvar {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.cancelar {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.valor {
+    width: 100%;
+    background: #1e222b;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 10px;
+    color: #e6e6e6;
+    font-size: 14px;
+    outline: none;
+}
+
+.valor:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.valor:not(:disabled) {
+    border-color: #2563eb;
+    background: #171a21;
+}
+
+    }
+
+.erro {
+    background: #3a1f1f;
+    border: 1px solid #a33;
+    color: #ff9d9d;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.campo.checkbox-campo {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.campo.checkbox-campo input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #2563eb;
+}
+
+.campo.checkbox-campo label {
+    margin-bottom: 0;
+}
+
+.campo input[type="file"] {
+    padding: 10px;
+}
+
+.abas {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.aba-btn {
+    background: transparent;
+    border: none;
+    color: #999;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.aba-btn:hover {
+    color: #dddddd;
+}
+
+.aba-btn.ativa {
+    color: #ffffff;
+    border-bottom-color: #2563eb;
+}
+
+.aba-conteudo {
+    display: none;
+}
+
+.aba-conteudo.ativa {
+    display: block;
+}
+
+.editor-toolbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.editor-btn {
+    background: #292929;
+    border: 1px solid #3a3a3a;
+    color: #eeeeee;
+    width: 34px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.editor-btn:hover:not(:disabled) {
+    background: #333333;
+    border-color: #2563eb;
+}
+
+.editor-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.editor-btn.negrito {
+    font-weight: bold;
+}
+
+.editor-btn.italico {
+    font-style: italic;
+}
+
+.editor-btn.marcador mark {
+    background: #ffe066;
+    color: #1a1a1a;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.editor-relato {
+    min-height: 160px;
+    padding: 12px;
+    background-color: #171a21;
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+    color: #eeeeee;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+}
+
+.editor-relato[contenteditable="false"] {
+    background-color: #292929;
+    border-color: #3a3a3a;
+    cursor: default;
+}
+
+.editor-relato mark {
+    background: #ffe066;
+    color: #1a1a1a;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.editor-relato:empty::before {
+    content: "Nenhum relato registrado.";
+    color: #777;
+}
+
+.galeria-fotos {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #333;
+}
+
+.radio-group-unidade {
+    display: flex;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.radio-opcao-unidade {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal !important;
+    color: #e6e6e6 !important;
+    font-size: 14px !important;
+    margin-bottom: 0 !important;
+    cursor: pointer;
+}
+
+.campo-radio-unidade {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    border: 2px solid #555;
+    border-radius: 50%;
+    background: #1e222b;
+    cursor: pointer;
+    position: relative;
+}
+
+.campo-radio-unidade:checked {
+    border-color: #2563eb;
+}
+
+.campo-radio-unidade:checked::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2563eb;
+}
+
+.campo-radio-unidade:disabled {
+    cursor: default;
+}
+
+.campo-radio-unidade:disabled:checked {
+    border-color: #4b5568;
+}
+
+.campo-radio-unidade:disabled:checked::after {
+    background: #4b5568;
+}
+
+.campo-causa-destaque {
+    margin-top: 25px;
+    padding: 18px 20px;
+    background: rgba(255, 145, 0, 0.08);
+    border: 2px solid #ff9100;
+    border-radius: 8px;
+}
+
+.campo-causa-destaque label {
+    color: #ff9100 !important;
+}
+
+.campo-causa-destaque .valor {
+    border-color: #ff9100;
+}
+
+.titulo-galeria {
+    font-size: 15px;
+    font-weight: bold;
+    color: #dddddd;
+    margin-bottom: 12px;
+}
+
+.galeria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.foto-item {
+    position: relative;
+}
+
+.galeria-grid img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.galeria-grid img:hover {
+    transform: scale(1.05);
+}
+
+.foto-remover {
+    display: none;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    line-height: 0;
+    cursor: pointer;
+}
+
+.foto-remover-icone {
+    width: 16px;
+    height: 16px;
+    stroke: #ef4444;
+    pointer-events: none;
+    transition: transform 0.15s;
+}
+
+.foto-remover:hover .foto-remover-icone {
+    transform: scale(1.15);
+}
+
+.foto-item.editando .foto-remover {
+    display: flex;
+}
+
+.sem-fotos {
+    color: #888;
+    font-size: 14px;
+}
+
+.lista-acoes {
+    margin-bottom: 20px;
+}
+
+.linha-acao {
+    padding: 14px 0;
+    border-bottom: 1px solid #292929;
+}
+
+.linha-acao:last-child {
+    border-bottom: none;
+}
+
+.acao-visualizacao {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.acao-visualizacao[hidden] {
+    display: none;
+}
+
+.form-acao-toggle {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.item-acao {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.item-acao-ferramentas {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-icone-acao {
+    background: #292929;
+    border: 1px solid #3a3a3a;
+    color: #9ca6b5;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.btn-icone-acao svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btn-icone-acao:hover {
+    background: #333333;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn-icone-excluir:hover {
+    border-color: #dc2626;
+    color: #ff9d9d;
+}
+
+.form-excluir-acao {
+    margin: 0;
+}
+
+.form-editar-acao {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.form-editar-acao[hidden] {
+    display: none;
+}
+
+.botoes-editar-acao {
+    display: flex;
+    gap: 8px;
+}
+
+.botoes-editar-acao .botao {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.item-acao input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: #22c55e;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.item-acao input[type="checkbox"]:disabled {
+    cursor: default;
+}
+
+.item-acao-conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-acao-titulo {
+    color: #eeeeee;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.item-acao-numero {
+    color: #6b7280;
+    font-weight: normal;
+}
+
+.item-acao-descricao {
+    color: #999;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.item-acao input[type="checkbox"]:checked + .item-acao-conteudo .item-acao-titulo {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.item-acao input[type="checkbox"]:checked + .item-acao-conteudo .item-acao-descricao {
+    text-decoration: line-through;
+    color: #666;
+}
+
+.sem-acoes-texto {
+    color: #888;
+    font-size: 14px;
+}
+
+.nova-acao-grupo {
+    padding-top: 18px;
+    border-top: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.nova-acao-grupo label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #999;
+    margin-bottom: 7px;
+}
+
+.btn-adicionar-acao {
+    align-self: flex-start;
+}
+
+textarea.valor {
+    resize: vertical;
+    font-family: inherit;
+    min-height: 100px;
+}
+
+.visualizador-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.visualizador-overlay[hidden] {
+    display: none;
+}
+
+.visualizador-imagem {
+    max-width: 85vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.visualizador-fechar {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.visualizador-fechar:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visualizador-seta {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.visualizador-seta:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visualizador-anterior {
+    left: 20px;
+}
+
+.visualizador-proxima {
+    right: 20px;
+}
+
+.visualizador-contador {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #cccccc;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 5px 14px;
+    border-radius: 20px;
+}
+
+@media (max-width: 600px) {
+    .visualizador-seta {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .visualizador-anterior {
+        left: 8px;
+    }
+
+    .visualizador-proxima {
+        right: 8px;
+    }
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<div class="cabecalho">
+    <h1>Painel de Qualidade — RDC</h1>
+</div>
+
+<div class="card">
+
+    <div class="titulo-card">
+        RDC Nº {{ rdc[1] }}
+    </div>
+
+    {% if erro %}
+    <div class="erro">{{ erro }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" id="form-visualizar">
+
+        <div class="abas">
+            <button type="button" class="aba-btn ativa" data-aba="dados" onclick="mostrarAba('dados')">Dados</button>
+            <button type="button" class="aba-btn" data-aba="relato" onclick="mostrarAba('relato')">Relato do Cliente</button>
+            <button type="button" class="aba-btn" data-aba="acoes" onclick="mostrarAba('acoes')">Ações Corretivas</button>
+        </div>
+
+        <div class="aba-conteudo ativa" id="aba-dados" data-aba="dados">
+
+        <div class="grid">
+
+            <div class="campo">
+                <label>Unidade</label>
+                <div class="radio-group-unidade">
+                    <label class="radio-opcao-unidade">
+                        <input type="radio" name="unidade" value="Matriz" class="campo-radio-unidade" disabled {{ 'checked' if rdc[18] == 'Matriz' else '' }}>
+                        Matriz
+                    </label>
+                    <label class="radio-opcao-unidade">
+                        <input type="radio" name="unidade" value="Filial - Mogi" class="campo-radio-unidade" disabled {{ 'checked' if rdc[18] == 'Filial - Mogi' else '' }}>
+                        Filial - Mogi
+                    </label>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Nº</label>
+                <input
+                    type="text"
+                    name="numero"
+                    class="valor"
+                    value="{{ rdc[1] }}"
+                    disabled
+                    required>
+            </div>
+
+            <div class="campo">
+                <label>Cliente</label>
+                <input
+                    type="text"
+                    name="cliente"
+                    class="valor"
+                    value="{{ rdc[2] }}"
+                    disabled
+                    required>
+            </div>
+
+            <div class="campo">
+                <label>Email</label>
+                <div id="lista-emails">
+                    {% set emails_lista = rdc[3].split(';') if rdc[3] else [''] %}
+                    {% for email in emails_lista %}
+                    <div class="linha-email">
+                        <input type="email" name="email" class="valor" value="{{ email.strip() }}" disabled>
+                        <button type="button" class="btn-remover-email" title="Remover e-mail" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="btn-adicionar-email" class="btn-adicionar-email" onclick="adicionarCampoEmail()">+ Adicionar e-mail</button>
+            </div>
+
+            <div class="campo">
+                <label>CPF ou CNPJ</label>
+                <input
+                    type="text"
+                    name="cpf_cnpj"
+                    class="valor"
+                    value="{{ rdc[4] }}"
+                    maxlength="18"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Telefone</label>
+                <input
+                    type="text"
+                    name="telefone"
+                    class="valor"
+                    value="{{ rdc[5] }}"
+                    maxlength="15"
+                    disabled>
+            </div>
+
+            <div class="campo endereco">
+                <label>Endereço</label>
+                <input
+                    type="text"
+                    name="endereco"
+                    class="valor"
+                    value="{{ rdc[6] }}"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>CEP</label>
+                <input
+                    type="text"
+                    name="cep"
+                    class="valor"
+                    value="{{ rdc[7] }}"
+                    maxlength="9"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Nota Fiscal</label>
+                <input
+                    type="text"
+                    name="nota_fiscal"
+                    class="valor"
+                    value="{{ rdc[8] }}"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Data</label>
+                <input
+                    type="date"
+                    name="data"
+                    class="valor"
+                    value="{{ rdc[9] }}"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Vendedor</label>
+                <input
+                    type="text"
+                    name="vendedor"
+                    class="valor"
+                    value="{{ rdc[10] }}"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Quantidade de defeitos</label>
+                <input
+                    type="text"
+                    name="quantidade_defeitos"
+                    class="valor"
+                    value="{{ rdc[13] }}"
+                    placeholder="Ex.: 5 rolos de NONTECK DRT30 150cm"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Participantes</label>
+                <input
+                    type="text"
+                    name="participantes"
+                    class="valor"
+                    value="{{ rdc[14] }}"
+                    placeholder="Colaboradores envolvidos neste documento"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label>Preferência do cliente</label>
+                <input
+                    type="text"
+                    name="preferencia_cliente"
+                    class="valor"
+                    value="{{ rdc[15] }}"
+                    placeholder="Produtos de preferência do cliente"
+                    disabled>
+            </div>
+
+            <div class="campo">
+                <label for="anexos">Anexar novas fotos</label>
+                <input
+                    type="file"
+                    id="anexos"
+                    name="anexos"
+                    class="valor"
+                    accept="image/png, image/jpeg, image/gif, image/webp"
+                    multiple
+                    disabled
+                    onchange="document.getElementById('fotos').checked = (fotosExistentesCount > 0) || (this.files.length > 0)">
+            </div>
+
+            <div class="campo checkbox-campo">
+                <input
+                    type="checkbox"
+                    id="fotos"
+                    {{ 'checked' if rdc[11] else '' }}
+                    disabled
+                    onclick="return false;"
+                    tabindex="-1">
+                <label for="fotos">Possui fotos?</label>
+            </div>
+
+        </div>
+
+        <div class="galeria-fotos">
+            <div class="titulo-galeria">Fotos anexadas</div>
+
+            {% if fotos %}
+            <div class="galeria-grid">
+                {% for foto in fotos %}
+                <div class="foto-item">
+                    <img
+                        src="{{ url_for('static', filename=foto[1]) }}"
+                        alt="Foto anexada da RDC"
+                        onclick="abrirVisualizador({{ loop.index0 }})">
+                    <button
+                        type="button"
+                        class="foto-remover"
+                        title="Remover foto"
+                        onclick="marcarRemocaoFoto({{ foto[0] }}, this)">
+                        <i data-lucide="x" class="foto-remover-icone"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="sem-fotos">Nenhuma foto anexada.</p>
+            {% endif %}
+        </div>
+
+        <div class="campo campo-causa-destaque">
+            <label>Causa Principal</label>
+            <input
+                type="text"
+                name="causa_principal"
+                class="valor"
+                value="{{ rdc[16] }}"
+                list="lista-causas-datalist"
+                placeholder="Causa principal da reclamação"
+                disabled>
+            <datalist id="lista-causas-datalist">
+                {% for causa in causas %}
+                <option value="{{ causa }}">
+                {% endfor %}
+            </datalist>
+        </div>
+
+        </div>
+
+        <div class="aba-conteudo" id="aba-relato" data-aba="relato">
+
+            <div class="editor-toolbar">
+                <button type="button" class="editor-btn negrito" title="Negrito" disabled onclick="aplicarFormatacaoRelato('bold')">B</button>
+                <button type="button" class="editor-btn italico" title="Itálico" disabled onclick="aplicarFormatacaoRelato('italic')">I</button>
+                <button type="button" class="editor-btn marcador" title="Marcar" disabled onclick="aplicarFormatacaoRelato('mark')"><mark>M</mark></button>
+            </div>
+
+            <div
+                id="relato-editor"
+                class="editor-relato"
+                contenteditable="false">{{ rdc[12]|safe if rdc[12] else '' }}</div>
+
+            <input type="hidden" name="relato" id="relato-input">
+
+        </div>
+
+        <div class="botoes">
+
+            <a
+                href="{{ url_for('painel_qualidade') }}"
+                class="botao voltar">
+                ← Voltar
+            </a>
+
+            <button
+                type="button"
+                id="btn-editar"
+                class="botao editar"
+                onclick="ativarEdicao()">
+                Editar
+            </button>
+
+            <button
+                type="submit"
+                id="btn-salvar"
+                class="botao salvar"
+                style="display: none;">
+                Salvar alterações
+            </button>
+
+            <button
+                type="button"
+                id="btn-cancelar"
+                class="botao cancelar"
+                style="display: none;"
+                onclick="cancelarEdicao()">
+                Cancelar
+            </button>
+
+        </div>
+
+    </form>
+
+    <div class="aba-conteudo" id="aba-acoes" data-aba="acoes">
+
+        <div class="lista-acoes">
+            {% if acoes %}
+            {% for acao in acoes %}
+            <div class="linha-acao">
+
+                <div class="acao-visualizacao" id="visualizacao-acao-{{ acao[0] }}">
+                    <form method="POST" action="{{ url_for('marcar_acao', rdc_id=rdc[0], acao_id=acao[0]) }}" class="form-acao-toggle">
+                        <label class="item-acao">
+                            <input type="checkbox" name="concluida" value="1" {{ 'checked' if acao[3] else '' }} onchange="this.form.submit()">
+                            <div class="item-acao-conteudo">
+                                <span class="item-acao-titulo"><span class="item-acao-numero">Ação {{ loop.index }} —</span> {{ acao[1] }}</span>
+                                {% if acao[2] %}
+                                <p class="item-acao-descricao">{{ acao[2] }}</p>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </form>
+
+                    <div class="item-acao-ferramentas">
+                        <button type="button" class="btn-icone-acao" title="Editar ação" onclick="ativarEdicaoAcao({{ acao[0] }})">
+                            <i data-lucide="pencil"></i>
+                        </button>
+                        <form method="POST" action="{{ url_for('excluir_acao', rdc_id=rdc[0], acao_id=acao[0]) }}" class="form-excluir-acao" onsubmit="return confirm('Excluir esta ação corretiva? Esta ação não pode ser desfeita.');">
+                            <button type="submit" class="btn-icone-acao btn-icone-excluir" title="Excluir ação">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('editar_acao', rdc_id=rdc[0], acao_id=acao[0]) }}" class="form-editar-acao" id="edicao-acao-{{ acao[0] }}" hidden>
+                    <input type="text" name="titulo" class="valor" value="{{ acao[1] }}" required>
+                    <textarea name="descricao" class="valor">{{ acao[2] }}</textarea>
+                    <div class="botoes-editar-acao">
+                        <button type="submit" class="botao editar">Salvar</button>
+                        <button type="button" class="botao voltar" onclick="cancelarEdicaoAcao({{ acao[0] }})">Cancelar</button>
+                    </div>
+                </form>
+
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="sem-acoes-texto">Nenhuma ação corretiva registrada.</p>
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{{ url_for('adicionar_acao', rdc_id=rdc[0]) }}" class="nova-acao-grupo">
+            <div>
+                <label for="novo-titulo-input">Título da ação</label>
+                <input
+                    type="text"
+                    id="novo-titulo-input"
+                    name="titulo"
+                    class="valor"
+                    placeholder="Ex.: Revisar processo de embalagem"
+                    required>
+            </div>
+
+            <div>
+                <label for="nova-descricao-input">Descrição</label>
+                <textarea
+                    id="nova-descricao-input"
+                    name="descricao"
+                    class="valor"
+                    placeholder="Detalhe a ação corretiva a ser executada..."></textarea>
+            </div>
+
+            <button type="submit" class="botao editar btn-adicionar-acao">+ Adicionar ação</button>
+        </form>
+
+    </div>
+
+</div>
+
+</div>
+
+<div id="visualizador-fotos" class="visualizador-overlay" hidden onclick="if (event.target === this) fecharVisualizador()">
+
+    <button type="button" class="visualizador-fechar" onclick="fecharVisualizador()">&times;</button>
+
+    <button type="button" class="visualizador-seta visualizador-anterior" onclick="fotoAnterior()">&#10094;</button>
+
+    <img id="visualizador-imagem" class="visualizador-imagem" src="" alt="Foto anexada da RDC">
+
+    <button type="button" class="visualizador-seta visualizador-proxima" onclick="fotoProxima()">&#10095;</button>
+
+    <div id="visualizador-contador" class="visualizador-contador"></div>
+
+</div>
+
+<script>{{ MASCARAS_JS|safe }}</script>
+<script>{{ LUCIDE_JS|safe }}</script>
+
+<script>
+    lucide.createIcons();
+
+    function ativarEdicao() {
+
+        const campos = document.querySelectorAll(".valor[name]");
+
+        campos.forEach(function(campo) {
+            campo.disabled = false;
+        });
+
+        document.querySelectorAll(".campo-radio-unidade").forEach(function(campo) {
+            campo.disabled = false;
+        });
+
+        document.querySelectorAll(".foto-item").forEach(function(item) {
+            item.classList.add("editando");
+        });
+
+        document.querySelectorAll(".btn-remover-email").forEach(function(botao) {
+            botao.style.display = "block";
+        });
+        document.getElementById("btn-adicionar-email").style.display = "inline-block";
+
+        document.getElementById("relato-editor").setAttribute("contenteditable", "true");
+        document.querySelectorAll(".editor-btn").forEach(function(botao) {
+            botao.disabled = false;
+        });
+
+        document.getElementById("btn-editar").style.display = "none";
+        document.getElementById("btn-salvar").style.display = "inline-block";
+        document.getElementById("btn-cancelar").style.display = "inline-block";
+    }
+
+
+    function cancelarEdicao() {
+
+        window.location.reload();
+
+    }
+
+    function adicionarCampoEmail() {
+
+        const container = document.getElementById("lista-emails");
+
+        const linha = document.createElement("div");
+        linha.className = "linha-email";
+        linha.innerHTML =
+            '<input type="email" name="email" class="valor" placeholder="email@exemplo.com">' +
+            '<button type="button" class="btn-remover-email" title="Remover e-mail" style="display: block;" onclick="this.parentElement.remove()">&times;</button>';
+
+        container.appendChild(linha);
+        linha.querySelector("input").focus();
+    }
+
+    function mostrarAba(nome) {
+
+        document.querySelectorAll(".aba-btn").forEach(function(botao) {
+            botao.classList.toggle("ativa", botao.dataset.aba === nome);
+        });
+
+        document.querySelectorAll(".aba-conteudo").forEach(function(conteudo) {
+            conteudo.classList.toggle("ativa", conteudo.dataset.aba === nome);
+        });
+
+        const emEdicao = document.getElementById("btn-salvar").style.display === "inline-block";
+        if (!emEdicao) {
+            document.getElementById("btn-editar").style.display = (nome === "acoes") ? "none" : "inline-block";
+        }
+    }
+
+    function ativarEdicaoAcao(acaoId) {
+        document.getElementById("visualizacao-acao-" + acaoId).hidden = true;
+        document.getElementById("edicao-acao-" + acaoId).hidden = false;
+    }
+
+    function cancelarEdicaoAcao(acaoId) {
+        document.getElementById("visualizacao-acao-" + acaoId).hidden = false;
+        document.getElementById("edicao-acao-" + acaoId).hidden = true;
+    }
+
+    if (window.location.hash === "#acoes") {
+        mostrarAba("acoes");
+    }
+
+    function aplicarFormatacaoRelato(comando) {
+
+        const editor = document.getElementById("relato-editor");
+        editor.focus();
+
+        if (comando === "mark") {
+            alternarMarcacao();
+        } else {
+            document.execCommand(comando, false, null);
+        }
+    }
+
+    function alternarMarcacao() {
+
+        const selecao = window.getSelection();
+        if (!selecao.rangeCount || selecao.isCollapsed) return;
+
+        const range = selecao.getRangeAt(0);
+        let noAncestral = range.commonAncestorContainer;
+        if (noAncestral.nodeType === 3) noAncestral = noAncestral.parentNode;
+
+        const marcadorExistente = noAncestral.closest && noAncestral.closest("mark");
+
+        if (marcadorExistente) {
+            const pai = marcadorExistente.parentNode;
+            while (marcadorExistente.firstChild) {
+                pai.insertBefore(marcadorExistente.firstChild, marcadorExistente);
+            }
+            pai.removeChild(marcadorExistente);
+            return;
+        }
+
+        try {
+            const marcador = document.createElement("mark");
+            range.surroundContents(marcador);
+        } catch (erro) {
+            const conteudo = range.extractContents();
+            const marcador = document.createElement("mark");
+            marcador.appendChild(conteudo);
+            range.insertNode(marcador);
+        }
+    }
+
+    document.getElementById("form-visualizar").addEventListener("submit", function() {
+        document.getElementById("relato-input").value = document.getElementById("relato-editor").innerHTML;
+    });
+
+    function marcarRemocaoFoto(fotoId, botao) {
+
+        if (!confirm("Remover esta foto? A remoção só será efetivada ao clicar em \"Salvar alterações\".")) {
+            return;
+        }
+
+        const item = botao.closest(".foto-item");
+        item.style.display = "none";
+
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "remover_fotos";
+        input.value = fotoId;
+        botao.closest("form").appendChild(input);
+    }
+
+    const fotosExistentesCount = {{ fotos|length }};
+    const fotosLista = [{% for foto in fotos %}"{{ url_for('static', filename=foto[1]) }}"{{ ',' if not loop.last }}{% endfor %}];
+    let fotoAtual = 0;
+
+    function abrirVisualizador(indice) {
+
+        if (!fotosLista.length) return;
+
+        fotoAtual = indice;
+        atualizarImagemVisualizador();
+        document.getElementById("visualizador-fotos").hidden = false;
+    }
+
+    function fecharVisualizador() {
+        document.getElementById("visualizador-fotos").hidden = true;
+    }
+
+    function fotoProxima() {
+        fotoAtual = (fotoAtual + 1) % fotosLista.length;
+        atualizarImagemVisualizador();
+    }
+
+    function fotoAnterior() {
+        fotoAtual = (fotoAtual - 1 + fotosLista.length) % fotosLista.length;
+        atualizarImagemVisualizador();
+    }
+
+    function atualizarImagemVisualizador() {
+        document.getElementById("visualizador-imagem").src = fotosLista[fotoAtual];
+        document.getElementById("visualizador-contador").textContent =
+            (fotoAtual + 1) + " / " + fotosLista.length;
+    }
+
+    document.addEventListener("keydown", function(evento) {
+
+        const overlay = document.getElementById("visualizador-fotos");
+        if (overlay.hidden) return;
+
+        if (evento.key === "ArrowRight") fotoProxima();
+        else if (evento.key === "ArrowLeft") fotoAnterior();
+        else if (evento.key === "Escape") fecharVisualizador();
+    });
+</script>
+
+</body> </html>

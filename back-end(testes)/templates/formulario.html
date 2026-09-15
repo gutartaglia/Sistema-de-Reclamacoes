@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Cliente</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #dddddd;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #2a2a2a;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+        }
+
+        input::placeholder {
+            color: #888;
+        }
+
+        /* Checkbox maior */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #007bff;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .erro {
+            background: #3a1f1f;
+            border: 1px solid #a33;
+            color: #ff9d9d;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .dica {
+            color: #888;
+            font-size: 12px;
+            margin-top: 6px;
+            margin-bottom: 0;
+        }
+
+        .linha-email {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .linha-email input {
+            flex: 1;
+        }
+
+        .btn-remover-email {
+            width: 42px;
+            flex-shrink: 0;
+            background: #3a1f1f;
+            border: 1px solid #a33;
+            color: #ff9d9d;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .btn-remover-email:hover {
+            background: #4a2626;
+        }
+
+        .btn-adicionar-email {
+            width: auto;
+            background: transparent;
+            border: 1px dashed #555;
+            color: #9ca6b5;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .btn-adicionar-email:hover {
+            background: #2a2a2a;
+            border-color: #007bff;
+            color: #ffffff;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .editor-btn {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #eeeeee;
+            width: 34px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .editor-btn:hover {
+            background: #333333;
+            border-color: #007bff;
+        }
+
+        .editor-btn.negrito {
+            font-weight: bold;
+        }
+
+        .editor-btn.italico {
+            font-style: italic;
+        }
+
+        .editor-btn.marcador mark {
+            background: #ffe066;
+            color: #1a1a1a;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .editor-relato {
+            min-height: 140px;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #2a2a2a;
+            color: #ffffff;
+            font-size: 15px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .editor-relato:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+        }
+
+        .editor-relato mark {
+            background: #ffe066;
+            color: #1a1a1a;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .editor-relato:empty::before {
+            content: "Escreva aqui o relato do cliente...";
+            color: #888;
+        }
+
+        .campo-causa-destaque {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 145, 0, 0.08);
+            border: 2px solid #ff9100;
+            border-radius: 8px;
+        }
+
+        .campo-causa-destaque > label {
+            color: #ff9100;
+            font-size: 16px;
+        }
+
+        .campo-causa-destaque input {
+            border-color: #ff9100;
+        }
+
+        .campo-causa-destaque input:focus {
+            border-color: #ffb347;
+            box-shadow: 0 0 0 2px rgba(255, 145, 0, 0.25);
+        }
+
+        .causa-abas {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .causa-aba-btn {
+            background: transparent;
+            border: 1px solid #ff9100;
+            color: #ff9100;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .causa-aba-btn.ativo {
+            background: #ff9100;
+            border-color: #ff9100;
+            color: #1a1a1a;
+        }
+
+        .causa-aba-conteudo[hidden] {
+            display: none;
+        }
+
+        .lista-badges-causa {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge-causa {
+            border: none;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            opacity: 0.9;
+        }
+
+        .badge-causa:hover {
+            opacity: 1;
+        }
+
+        .radio-group-unidade {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-opcao-unidade {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .radio-opcao-unidade input[type="radio"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            flex-shrink: 0;
+            border: 2px solid #666;
+            border-radius: 50%;
+            background: #2a2a2a;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .radio-opcao-unidade input[type="radio"]:checked {
+            border-color: #007bff;
+        }
+
+        .radio-opcao-unidade input[type="radio"]:checked::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #007bff;
+        }
+
+        /* Ajuste para telas pequenas */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-container">
+        <h2>Cadastro de Ficha de Reclamação</h2>
+
+        {% if erro %}
+        <div class="erro">{{ erro }}</div>
+        {% endif %}
+
+        <form action="/formulario" method="POST" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label>Unidade</label>
+                <div class="radio-group-unidade">
+                    <label class="radio-opcao-unidade">
+                        <input type="radio" name="unidade" value="Matriz" required
+                            {{ 'checked' if dados and dados.unidade == 'Matriz' }}>
+                        Matriz
+                    </label>
+                    <label class="radio-opcao-unidade">
+                        <input type="radio" name="unidade" value="Filial - Mogi"
+                            {{ 'checked' if dados and dados.unidade == 'Filial - Mogi' }}>
+                        Filial - Mogi
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="numero">Nº</label>
+                <input
+                    type="text"
+                    id="numero"
+                    name="numero"
+                    value="{{ dados.numero if dados else '' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="cliente">Cliente</label>
+                <input
+                    type="text"
+                    id="cliente"
+                    name="cliente"
+                    value="{{ dados.cliente if dados else '' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>E-mail</label>
+                <div id="lista-emails">
+                    <div class="linha-email">
+                        <input type="email" name="email" placeholder="email@exemplo.com">
+                    </div>
+                </div>
+                <button type="button" class="btn-adicionar-email" onclick="adicionarCampoEmail()">+ Adicionar e-mail</button>
+            </div>
+
+            <div class="form-group">
+                <label for="cpf ou cnpj">CPF ou CNPJ</label>
+                <input type="text"
+                    id="cpf_cnpj"
+                    name="cpf_cnpj"
+                    maxlength="18"
+                    placeholder="000.000.000-00"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input
+                    type="tel"
+                    id="telefone"
+                    name="telefone"
+                    maxlength="15"
+                    placeholder="(00) 00000-0000"
+                >
+                <p class="dica">Informe pelo menos um e-mail ou telefone.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="endereco">Endereço</label>
+                <input
+                    type="text"
+                    id="endereco"
+                    name="endereco"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="cep">CEP</label>
+                <input
+                    type="text"
+                    id="cep"
+                    name="cep"
+                    maxlength="9"
+                    placeholder="00000-000"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="nota_fiscal">Nota Fiscal</label>
+                <input
+                    type="text"
+                    id="nota_fiscal"
+                    name="nota_fiscal"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="data">Data</label>
+                <input
+                    type="date"
+                    id="data"
+                    name="data"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="vendedor">Vendedor</label>
+                <input
+                    type="text"
+                    id="vendedor"
+                    name="vendedor"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="quantidade_defeitos">Quantidade de defeitos</label>
+                <input
+                    type="text"
+                    id="quantidade_defeitos"
+                    name="quantidade_defeitos"
+                    placeholder="Ex.: 5 rolos de NONTECK DRT30 150cm"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="participantes">Participantes</label>
+                <input
+                    type="text"
+                    id="participantes"
+                    name="participantes"
+                    placeholder="Colaboradores envolvidos neste documento"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="preferencia_cliente">Preferência do cliente</label>
+                <input
+                    type="text"
+                    id="preferencia_cliente"
+                    name="preferencia_cliente"
+                    placeholder="Produtos de preferência do cliente"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="relato-editor">Relato do Cliente</label>
+                <div class="editor-toolbar">
+                    <button type="button" class="editor-btn negrito" title="Negrito" onclick="aplicarFormatacaoRelato('bold')">B</button>
+                    <button type="button" class="editor-btn italico" title="Itálico" onclick="aplicarFormatacaoRelato('italic')">I</button>
+                    <button type="button" class="editor-btn marcador" title="Marcar" onclick="aplicarFormatacaoRelato('mark')"><mark>M</mark></button>
+                </div>
+                <div id="relato-editor" class="editor-relato" contenteditable="true">{{ relato|safe if relato else '' }}</div>
+                <input type="hidden" name="relato" id="relato-input">
+            </div>
+
+            <div class="form-group">
+                <label for="anexos">Anexar fotos (opcional)</label>
+                <input
+                    type="file"
+                    id="anexos"
+                    name="anexos"
+                    accept="image/png, image/jpeg, image/gif, image/webp"
+                    multiple
+                    onchange="document.getElementById('fotos').checked = this.files.length > 0"
+                >
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input
+                    type="checkbox"
+                    id="fotos"
+                    onclick="return false;"
+                    tabindex="-1"
+                >
+
+                <label for="fotos">Possui fotos?</label>
+            </div>
+
+            <div class="form-group campo-causa-destaque">
+                <label for="causa_principal">Causa Principal</label>
+
+                <div class="causa-abas">
+                    <button type="button" class="causa-aba-btn ativo" data-causa-aba="nova" onclick="mostrarAbaCausa('nova')">Nova causa</button>
+                    <button type="button" class="causa-aba-btn" data-causa-aba="historico" onclick="mostrarAbaCausa('historico')">Histórico</button>
+                </div>
+
+                <div class="causa-aba-conteudo" data-causa-aba-conteudo="nova">
+                    <input
+                        type="text"
+                        id="causa_principal"
+                        name="causa_principal"
+                        placeholder="Ex.: Falha de fabricação"
+                        value="{{ dados.causa_principal if dados else '' }}"
+                    >
+                </div>
+
+                <div class="causa-aba-conteudo" data-causa-aba-conteudo="historico" hidden>
+                    {% if causas %}
+                    <div class="lista-badges-causa">
+                        {% for causa in causas %}
+                        <button type="button" class="badge-causa" data-causa-nome="{{ causa }}">{{ causa }}</button>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="dica">Nenhuma causa cadastrada ainda.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <button type="submit">Enviar</button>
+
+        </form>
+    </div>
+
+    <script>{{ MASCARAS_JS|safe }}</script>
+
+    <script>
+        function adicionarCampoEmail() {
+
+            const container = document.getElementById("lista-emails");
+
+            const linha = document.createElement("div");
+            linha.className = "linha-email";
+            linha.innerHTML =
+                '<input type="email" name="email" placeholder="email@exemplo.com">' +
+                '<button type="button" class="btn-remover-email" title="Remover e-mail" onclick="this.parentElement.remove()">&times;</button>';
+
+            container.appendChild(linha);
+            linha.querySelector("input").focus();
+        }
+
+        function aplicarFormatacaoRelato(comando) {
+
+            const editor = document.getElementById("relato-editor");
+            editor.focus();
+
+            if (comando === "mark") {
+                alternarMarcacao();
+            } else {
+                document.execCommand(comando, false, null);
+            }
+        }
+
+        function alternarMarcacao() {
+
+            const selecao = window.getSelection();
+            if (!selecao.rangeCount || selecao.isCollapsed) return;
+
+            const range = selecao.getRangeAt(0);
+            let noAncestral = range.commonAncestorContainer;
+            if (noAncestral.nodeType === 3) noAncestral = noAncestral.parentNode;
+
+            const marcadorExistente = noAncestral.closest && noAncestral.closest("mark");
+
+            if (marcadorExistente) {
+                const pai = marcadorExistente.parentNode;
+                while (marcadorExistente.firstChild) {
+                    pai.insertBefore(marcadorExistente.firstChild, marcadorExistente);
+                }
+                pai.removeChild(marcadorExistente);
+                return;
+            }
+
+            try {
+                const marcador = document.createElement("mark");
+                range.surroundContents(marcador);
+            } catch (erro) {
+                const conteudo = range.extractContents();
+                const marcador = document.createElement("mark");
+                marcador.appendChild(conteudo);
+                range.insertNode(marcador);
+            }
+        }
+
+        document.querySelector("form").addEventListener("submit", function() {
+            document.getElementById("relato-input").value = document.getElementById("relato-editor").innerHTML;
+        });
+
+        function mostrarAbaCausa(nome) {
+            document.querySelectorAll(".causa-aba-btn").forEach(function(btn) {
+                btn.classList.toggle("ativo", btn.dataset.causaAba === nome);
+            });
+            document.querySelectorAll(".causa-aba-conteudo").forEach(function(div) {
+                div.hidden = div.dataset.causaAbaConteudo !== nome;
+            });
+        }
+
+        function selecionarCausaHistorico(nome) {
+            document.getElementById("causa_principal").value = nome;
+            mostrarAbaCausa("nova");
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            registrarCoresCausas({{ causas|tojson }});
+
+            document.querySelectorAll(".badge-causa").forEach(function(el) {
+                el.style.background = corParaCausa(el.dataset.causaNome);
+                el.addEventListener("click", function() {
+                    selecionarCausaHistorico(el.dataset.causaNome);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

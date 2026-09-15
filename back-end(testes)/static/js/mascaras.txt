@@ -1,0 +1,85 @@
+function mascararCEP(valor) {
+    valor = valor.replace(/\D/g, "").slice(0, 8);
+    valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
+    return valor;
+}
+
+function mascararTelefone(valor) {
+    valor = valor.replace(/\D/g, "").slice(0, 11);
+    valor = valor.replace(/^(\d{2})(\d)/, "($1) $2");
+    valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
+    return valor;
+}
+
+function mascararCpfCnpj(valor) {
+    valor = valor.replace(/\D/g, "").slice(0, 14);
+
+    if (valor.length <= 11) {
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    } else {
+        valor = valor.replace(/^(\d{2})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1/$2");
+        valor = valor.replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+    }
+
+    return valor;
+}
+
+function aplicarMascara(input, funcaoMascara) {
+    if (!input) return;
+
+    if (input.value) {
+        input.value = funcaoMascara(input.value);
+    }
+
+    input.addEventListener("input", function () {
+        input.value = funcaoMascara(input.value);
+    });
+}
+
+const PALETA_CORES_CAUSAS = [
+    "#2563eb", "#16a34a", "#dc2626", "#f59e0b", "#8b5cf6", "#06b6d4",
+    "#ec4899", "#84cc16", "#f97316", "#14b8a6", "#a855f7", "#eab308",
+    "#ef4444", "#22c55e", "#3b82f6", "#d946ef", "#0ea5e9", "#facc15",
+    "#f43f5e", "#10b981", "#6366f1", "#fb923c", "#c026d3", "#65a30d"
+];
+
+const MAPA_CORES_CAUSAS = {};
+
+function registrarCoresCausas(lista) {
+    (lista || []).forEach(function(causa) {
+        const chave = (causa || "").trim().toLowerCase();
+        if (chave && !(chave in MAPA_CORES_CAUSAS)) {
+            const indice = Object.keys(MAPA_CORES_CAUSAS).length;
+            MAPA_CORES_CAUSAS[chave] = PALETA_CORES_CAUSAS[indice % PALETA_CORES_CAUSAS.length];
+        }
+    });
+}
+
+function corParaCausa(texto) {
+    const chave = (texto || "").trim().toLowerCase();
+    if (!chave) return "#6b7280";
+
+    if (MAPA_CORES_CAUSAS[chave]) {
+        return MAPA_CORES_CAUSAS[chave];
+    }
+
+    let hash = 0;
+    for (let i = 0; i < chave.length; i++) {
+        hash = (hash * 31 + chave.charCodeAt(i)) >>> 0;
+    }
+    const cor = PALETA_CORES_CAUSAS[hash % PALETA_CORES_CAUSAS.length];
+    MAPA_CORES_CAUSAS[chave] = cor;
+    return cor;
+}
+
+function inicializarMascaras() {
+    aplicarMascara(document.querySelector('[name="cpf_cnpj"]'), mascararCpfCnpj);
+    aplicarMascara(document.querySelector('[name="cep"]'), mascararCEP);
+    aplicarMascara(document.querySelector('[name="telefone"]'), mascararTelefone);
+}
+
+document.addEventListener("DOMContentLoaded", inicializarMascaras);

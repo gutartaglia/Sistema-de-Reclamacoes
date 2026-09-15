@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Qualidade</title>
+
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0f1117;
+    color: #e6e6e6;
+    min-height: 100vh;
+}
+
+/* Cabeçalho */
+header {
+    background: #171a21;
+    border-bottom: 1px solid #292d36;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 {
+    color: #ffffff;
+    font-size: 24px;
+}
+
+header span {
+    color: #8b93a1;
+    font-size: 14px;
+}
+
+/* Conteúdo */
+.container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 40px auto;
+}
+
+.titulo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.titulo h2 {
+    color: #ffffff;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.titulo p {
+    color: #858d9b;
+}
+
+.titulo .contagem {
+    color: #6ea8fe;
+    font-weight: bold;
+}
+
+.busca {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #171a21;
+    border: 1px solid #292d36;
+    border-radius: 8px;
+    padding: 9px 14px;
+    min-width: 280px;
+}
+
+.busca svg {
+    flex-shrink: 0;
+}
+
+.busca input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e6e6e6;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.busca input::placeholder {
+    color: #666e7d;
+}
+
+/* Abas do painel */
+.painel-abas {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.painel-aba-btn {
+    background: #171a21;
+    border: 1px solid #292d36;
+    color: #9ca6b5;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.painel-aba-btn.ativo {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+[data-painel-aba-conteudo][hidden] {
+    display: none;
+}
+
+/* Relatórios */
+.relatorios-painel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.relatorio-secao {
+    background: #171a21;
+    border: 1px solid #292d36;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.relatorio-secao h3 {
+    color: #ffffff;
+    font-size: 17px;
+    margin-bottom: 16px;
+}
+
+.vazio-relatorio {
+    color: #858d9b;
+    font-size: 14px;
+}
+
+.lista-relatorio-causas,
+.lista-relatorio-anos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-relatorio-causa,
+.item-relatorio-ano {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #1e222b;
+    border-radius: 8px;
+}
+
+.badge-causa {
+    color: #ffffff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.badge-sem-causa {
+    background: #3a3f4b;
+    color: #b6bdc9;
+}
+
+.ano-label {
+    color: #e6e6e6;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.relatorio-total {
+    color: #6ea8fe;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+/* Dashboard */
+.dashboard-painel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.dashboard-subabas {
+    display: flex;
+    gap: 8px;
+}
+
+.dashboard-subaba-btn {
+    background: #171a21;
+    border: 1px solid #292d36;
+    color: #9ca6b5;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.dashboard-subaba-btn.ativo {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+}
+
+[data-dashboard-subaba-conteudo][hidden] {
+    display: none;
+}
+
+.dashboard-subaba-vazia {
+    background: #171a21;
+    border: 1px solid #292d36;
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    color: #777f8d;
+}
+
+.dashboard-secao {
+    background: #171a21;
+    border: 1px solid #292d36;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-secao h3 {
+    color: #ffffff;
+    font-size: 17px;
+    margin-bottom: 16px;
+}
+
+.dashboard-grafico-wrap {
+    position: relative;
+    height: 340px;
+}
+
+.dashboard-grafico-wrap-alto {
+    height: 420px;
+}
+
+.dashboard-tabela-container {
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+.dashboard-tabela-container table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+}
+
+.dashboard-tabela-container th {
+    color: #9ca6b5;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    padding: 12px 14px;
+    background: #1e222b;
+    white-space: nowrap;
+}
+
+.dashboard-tabela-container td {
+    padding: 11px 14px;
+    color: #d8dce3;
+    font-size: 13px;
+    border-top: 1px solid #23262f;
+    white-space: nowrap;
+}
+
+.dashboard-vazio {
+    color: #858d9b;
+    font-size: 14px;
+}
+
+.filtro-ano-secao .dashboard-vazio {
+    margin-bottom: 12px;
+}
+
+.select-filtro-ano {
+    background: #1e222b;
+    border: 1px solid #333a47;
+    color: #e6e6e6;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 180px;
+}
+
+.select-filtro-ano:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.filtro-ano-linha {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-exportar-excel {
+    background: #16a34a;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-exportar-excel:hover {
+    background: #15803d;
+}
+
+/* Card da tabela */
+.table-container {
+    background: #171a21;
+    border: 1px solid #292d36;
+    border-radius: 12px;
+    overflow: auto;
+    max-height: 62vh;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 950px;
+}
+
+thead {
+    background: #1e222b;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+th {
+    color: #9ca6b5;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    padding: 16px;
+    border: none;
+    white-space: nowrap;
+}
+
+td {
+    padding: 16px;
+    color: #d8dce3;
+    font-size: 14px;
+    border: none;
+    border-top: 1px solid #23262f;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+tbody tr {
+    transition: background 0.2s;
+}
+
+tbody tr:hover {
+    background: #1e222b;
+}
+
+tbody tr:first-child td {
+    border-top: none;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ID */
+td.id-cell {
+    color: #6ea8fe;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Data */
+td.data-cell {
+    color: #b7bfcc;
+    white-space: nowrap;
+}
+
+/* Mensagem vazia */
+.vazio {
+    text-align: center;
+    padding: 60px 20px;
+    color: #777f8d;
+}
+
+.vazio strong {
+    display: block;
+    color: #b7bfcc;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+/* Botão */
+.btn {
+    display: inline-block;
+    padding: 10px 18px;
+    background: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    border: none;
+    border-radius: 7px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.header-acoes {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.usuario-logado {
+    color: #8b93a1;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.btn-sair {
+    background: #292d36;
+}
+
+.btn-sair:hover {
+    background: #3a3f4b;
+}
+
+.btn-lista-principal {
+    background: #292d36;
+}
+
+.btn-lista-principal:hover {
+    background: #3a3f4b;
+}
+
+/* Barra de rolagem */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #11141a;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #333a47;
+    border-radius: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #454c5a;
+}
+
+.acoes {
+    position: relative;
+    text-align: center;
+    overflow: visible;
+    white-space: nowrap;
+}
+
+.fotos-cell {
+    text-align: center;
+}
+
+.icone-fotos-wrap {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+}
+
+.icone-camera {
+    vertical-align: middle;
+    stroke: #6b7280;
+}
+
+.icone-camera.tem-fotos {
+    stroke: #22c55e;
+}
+
+.icone-x-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+}
+
+.icone-fotos-wrap.clicavel {
+    cursor: pointer;
+}
+
+.percentual-cell {
+    text-align: center;
+}
+
+.badge-percentual {
+    display: inline-block;
+    min-width: 52px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.badge-percentual.em-andamento {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-percentual.concluido {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.badge-percentual.sem-acoes {
+    background: rgba(139, 147, 161, 0.12);
+    color: #8b93a1;
+    border: 1px solid rgba(139, 147, 161, 0.3);
+}
+
+.visualizador-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.visualizador-overlay[hidden] {
+    display: none;
+}
+
+.visualizador-imagem {
+    max-width: 85vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.visualizador-fechar {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.visualizador-fechar:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visualizador-seta {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.visualizador-seta:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visualizador-anterior {
+    left: 20px;
+}
+
+.visualizador-proxima {
+    right: 20px;
+}
+
+.visualizador-contador {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #cccccc;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 5px 14px;
+    border-radius: 20px;
+}
+
+@media (max-width: 600px) {
+    .visualizador-seta {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .visualizador-anterior {
+        left: 8px;
+    }
+
+    .visualizador-proxima {
+        right: 8px;
+    }
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.modal-overlay[hidden] {
+    display: none;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 560px;
+    background: #171a21;
+    border: 1px solid #292d36;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.modal-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-cabecalho h2 {
+    color: #ffffff;
+    font-size: 20px;
+}
+
+.modal-fechar {
+    background: transparent;
+    border: none;
+    color: #9ca6b5;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.modal-fechar:hover {
+    background: #292d36;
+    color: #ffffff;
+}
+
+.modal-card .form-group {
+    margin-bottom: 16px;
+}
+
+.modal-card label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #dddddd;
+    font-size: 14px;
+}
+
+.modal-card input {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #333a47;
+    border-radius: 6px;
+    background: #1e222b;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+}
+
+.modal-card input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.modal-card .campo-causa-destaque {
+    margin-top: 22px;
+    padding: 18px;
+    background: rgba(255, 145, 0, 0.08);
+    border: 2px solid #ff9100;
+    border-radius: 8px;
+}
+
+.modal-card .campo-causa-destaque > label {
+    color: #ff9100;
+}
+
+.modal-card .campo-causa-destaque input {
+    border-color: #ff9100;
+}
+
+.modal-card .campo-causa-destaque input:focus {
+    border-color: #ffb347;
+    box-shadow: 0 0 0 2px rgba(255, 145, 0, 0.25);
+}
+
+.modal-card .radio-group-unidade {
+    display: flex;
+    gap: 20px;
+}
+
+.modal-card .radio-opcao-unidade {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    color: #e6e6e6;
+    cursor: pointer;
+}
+
+.modal-card .radio-opcao-unidade input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    border: 2px solid #555;
+    border-radius: 50%;
+    background: #1e222b;
+    cursor: pointer;
+    position: relative;
+}
+
+.modal-card .radio-opcao-unidade input[type="radio"]:checked {
+    border-color: #2563eb;
+}
+
+.modal-card .radio-opcao-unidade input[type="radio"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2563eb;
+}
+
+.modal-card .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-card .checkbox-group input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.modal-card .checkbox-group label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.modal-card .erro {
+    background: #3a1f1f;
+    border: 1px solid #a33;
+    color: #ff9d9d;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.modal-card .dica {
+    color: #8b93a1;
+    font-size: 12px;
+    margin-top: 6px;
+    margin-bottom: 0;
+}
+
+.modal-card .linha-email {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.modal-card .linha-email input {
+    flex: 1;
+}
+
+.modal-card .btn-remover-email {
+    width: 42px;
+    flex-shrink: 0;
+    background: #3a1f1f;
+    border: 1px solid #a33;
+    color: #ff9d9d;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+}
+
+.modal-card .btn-remover-email:hover {
+    background: #4a2626;
+}
+
+.modal-card .btn-adicionar-email {
+    width: auto;
+    background: transparent;
+    border: 1px dashed #333a47;
+    color: #9ca6b5;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.modal-card .btn-adicionar-email:hover {
+    background: #1e222b;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.modal-card button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modal-card button[type="submit"]:hover {
+    background: #1d4ed8;
+}
+
+.modal-card button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.modal-card .editor-toolbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.modal-card .editor-btn {
+    background: #1e222b;
+    border: 1px solid #333a47;
+    color: #eeeeee;
+    width: 34px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modal-card .editor-btn:hover {
+    background: #292d36;
+    border-color: #2563eb;
+}
+
+.modal-card .editor-btn.negrito {
+    font-weight: bold;
+}
+
+.modal-card .editor-btn.italico {
+    font-style: italic;
+}
+
+.modal-card .editor-btn.marcador mark {
+    background: #ffe066;
+    color: #1a1a1a;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.modal-card .editor-relato {
+    min-height: 120px;
+    padding: 11px;
+    border: 1px solid #333a47;
+    border-radius: 6px;
+    background: #1e222b;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+}
+
+.modal-card .editor-relato:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.modal-card .editor-relato mark {
+    background: #ffe066;
+    color: #1a1a1a;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.modal-card .editor-relato:empty::before {
+    content: "Escreva aqui o relato do cliente...";
+    color: #888;
+}
+
+.menu-btn {
+    background: transparent;
+    border: none;
+    color: #9ca6b5;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.menu-btn:hover {
+    background: #292d36;
+    color: #ffffff;
+}
+
+.menu {
+    display: none;
+    position: fixed;
+    min-width: 130px;
+    background: #1e222b;
+    border: 1px solid #292d36;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.menu a {
+    display: block;
+    padding: 10px 14px;
+    color: #d8dce3;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.menu a:hover {
+    background: #292d36;
+}
+
+.menu a:last-child {
+    color: #ef4444;
+}
+
+/* Responsivo */
+@media (max-width: 700px) {
+
+    header {
+        padding: 18px 20px;
+        gap: 15px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    header span {
+        font-size: 12px;
+    }
+
+    .container {
+        width: 92%;
+        margin: 25px auto;
+    }
+
+    .titulo {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .titulo h2 {
+        font-size: 23px;
+    }
+
+    .titulo p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .busca {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .table-container {
+        border-radius: 10px;
+    }
+
+    th,
+    td {
+        padding: 13px;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>Painel de Qualidade</h1>
+        <span>Ações corretivas por RDC</span>
+    </div>
+    <div class="header-acoes">
+        <span class="usuario-logado">{{ session.get('usuario_nome', '') }} · {{ session.get('usuario_setor', '') }}</span>
+        <a href="{{ url_for('lista') }}" class="btn btn-lista-principal">Lista principal</a>
+        <button type="button" class="btn" onclick="abrirModalFormulario()">+ Nova RDC</button>
+        <a href="{{ url_for('logout') }}" class="btn btn-sair">Sair</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="painel-abas">
+        <button type="button" class="painel-aba-btn ativo" data-painel-aba="lista" onclick="mostrarAbaPainel('lista')">Lista</button>
+        <button type="button" class="painel-aba-btn" data-painel-aba="relatorios" onclick="mostrarAbaPainel('relatorios')">Relatórios</button>
+        <button type="button" class="painel-aba-btn" data-painel-aba="dashboard" onclick="mostrarAbaPainel('dashboard')">Dashboard</button>
+    </div>
+
+    <div data-painel-aba-conteudo="lista">
+
+    <div class="titulo">
+        <div>
+            <h2>RDCs em acompanhamento</h2>
+            <p>
+                <span class="contagem" id="contagem-rdcs">{{ rdcs|length }}</span>
+                registro{{ '' if rdcs|length == 1 else 's' }} cadastrado{{ '' if rdcs|length == 1 else 's' }}
+            </p>
+        </div>
+
+        <div class="busca">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#8b93a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+                type="text"
+                id="busca-rdc"
+                placeholder="Buscar por Nº, nota fiscal ou data..."
+                oninput="filtrarRdcs()">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>Cliente</th>
+                    <th>Email</th>
+                    <th>CPF ou CNPJ</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>CEP</th>
+                    <th>Nota Fiscal</th>
+                    <th>Data</th>
+                    <th>Vendedor</th>
+                    <th>Fotos</th>
+                    <th>Ações Corretivas</th>
+                    <th>Ferramentas</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for rdc in rdcs %}
+                <tr data-linha-rdc>
+                    <td class="id-cell">#{{ rdc[1] }}</td>
+                    <td title="{{ rdc[2] }}">{{ rdc[2] }}</td>
+                    <td title="{{ rdc[3] }}">{{ rdc[3] }}</td>
+                    <td title="{{ rdc[4] }}">{{ rdc[4] }}</td>
+                    <td title="{{ rdc[5] }}">{{ rdc[5] }}</td>
+                    <td title="{{ rdc[6] }}">{{ rdc[6] }}</td>
+                    <td title="{{ rdc[7] }}">{{ rdc[7] }}</td>
+                    <td title="{{ rdc[8] }}">{{ rdc[8] }}</td>
+                    <td class="data-cell">{{ rdc[9][8:10] }}/{{ rdc[9][5:7] }}/{{ rdc[9][0:4] }}</td>
+                    <td title="{{ rdc[10] }}">{{ rdc[10] }}</td>
+
+                    <td class="fotos-cell">
+                        {% set tem_fotos = rdc[19] and rdc[19] > 0 %}
+                        <span
+                            class="icone-fotos-wrap {{ 'clicavel' if tem_fotos else '' }}"
+                            title="{{ ('Possui ' ~ rdc[19] ~ ' foto' ~ ('' if rdc[19] == 1 else 's') ~ ' anexada' ~ ('' if rdc[19] == 1 else 's')) if tem_fotos else 'Nenhuma foto anexada' }}"
+                            {% if tem_fotos %}
+                            onclick="abrirVisualizador([{% for caminho in rdc[20].split(',') %}'{{ url_for('static', filename=caminho) }}'{{ ',' if not loop.last }}{% endfor %}])"
+                            {% endif %}>
+
+                            <svg class="icone-camera {{ 'tem-fotos' if tem_fotos else 'sem-fotos' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+
+                            {% if not tem_fotos %}
+                            <svg class="icone-x-badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12">
+                                <circle cx="12" cy="12" r="12" fill="#ef4444"></circle>
+                                <path d="M8 8l8 8M16 8l-8 8" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"></path>
+                            </svg>
+                            {% endif %}
+                        </span>
+                    </td>
+
+                    <td class="percentual-cell">
+                        {% set total_acoes = rdc[21] or 0 %}
+                        {% if total_acoes > 0 %}
+                            {% set percentual = ((rdc[22] or 0) / total_acoes * 100) | round | int %}
+                            <span class="badge-percentual {{ 'concluido' if percentual == 100 else 'em-andamento' }}">{{ percentual }}%</span>
+                        {% else %}
+                            <span class="badge-percentual sem-acoes">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="acoes">
+
+                        <button class="menu-btn" onclick="toggleMenu('{{ rdc[0] }}', this)">
+                            ⋮
+                        </button>
+
+                        <div id="menu-{{ rdc[0] }}" class="menu">
+
+                            <a href="{{ url_for('painel_qualidade_rdc', id=rdc[0]) }}">
+                                Visualizar
+                            </a>
+                            <a href="{{ url_for('exportar_rdc', id=rdc[0]) }}">
+                                Exportar
+                            </a>
+                            <a href="{{ url_for('painel_qualidade_deletar_rdc', id=rdc[0]) }}"
+                                onclick="return confirm('Tem certeza que deseja deletar essa RDC?');">
+                                Deletar
+                            </a>
+                        </div>
+
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="13">
+                        <div class="vazio">
+                            <strong>Nenhuma RDC cadastrada</strong>
+                            Assim que uma reclamação for registrada, ela aparecerá aqui.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+    </div>
+
+    <div data-painel-aba-conteudo="relatorios" hidden class="relatorios-painel">
+
+        <div class="relatorio-secao">
+            <h3>RDCs por Causa Principal</h3>
+            {% if causas_contagem %}
+            <div class="lista-relatorio-causas">
+                {% for causa, total in causas_contagem %}
+                <div class="item-relatorio-causa">
+                    <span class="badge-causa" data-causa-nome="{{ causa }}">{{ causa }}</span>
+                    <span class="relatorio-total">{{ total }}</span>
+                </div>
+                {% endfor %}
+                {% if sem_causa > 0 %}
+                <div class="item-relatorio-causa">
+                    <span class="badge-causa badge-sem-causa">Sem causa definida</span>
+                    <span class="relatorio-total">{{ sem_causa }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="vazio-relatorio">Nenhuma causa registrada ainda.</p>
+            {% endif %}
+        </div>
+
+        <div class="relatorio-secao">
+            <h3>Total de RDCs por Ano</h3>
+            {% if anos_contagem %}
+            <div class="lista-relatorio-anos">
+                {% for ano, total in anos_contagem %}
+                <div class="item-relatorio-ano">
+                    <span class="ano-label">{{ ano }}</span>
+                    <span class="relatorio-total">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="vazio-relatorio">Nenhum registro encontrado.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div data-painel-aba-conteudo="dashboard" hidden class="dashboard-painel">
+
+        <div class="dashboard-subabas">
+            <button type="button" class="dashboard-subaba-btn" data-dashboard-subaba="matriz" onclick="mostrarSubAbaDashboard('matriz')">Matriz</button>
+            <button type="button" class="dashboard-subaba-btn ativo" data-dashboard-subaba="filial" onclick="mostrarSubAbaDashboard('filial')">Filial</button>
+            <button type="button" class="dashboard-subaba-btn" data-dashboard-subaba="combinado" onclick="mostrarSubAbaDashboard('combinado')">Filial + Matriz</button>
+        </div>
+
+        <div data-dashboard-subaba-conteudo="matriz" hidden class="dashboard-painel">
+
+            <div class="dashboard-secao filtro-ano-secao">
+                <h3>Filtro de ano</h3>
+                <p class="dashboard-vazio">Filtra os gráficos e tabelas por mês e o Gráfico de Pareto abaixo. "Total de RDCs por ano" sempre mostra todos os anos.</p>
+                <div class="filtro-ano-linha">
+                    <select id="matriz-filtro-ano" class="select-filtro-ano" onchange="atualizarGraficosNaoAnuaisUnidade('matriz', this.value)">
+                        <option value="todos">Todos os anos</option>
+                        {% for ano in matriz_anos_disponiveis %}
+                        <option value="{{ ano }}">{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-exportar-excel" onclick="exportarDashboardExcel('matriz')">Exportar para Excel</button>
+                </div>
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Reclamações por mês</h3>
+                {% if matriz_mensal %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-matriz-mensal"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma reclamação registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Reclamações e índice por mês</h3>
+                {% if matriz_mensal %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                <th>Nº de reclamações</th>
+                                <th>Índice (nº / 2000)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-matriz-mensal-corpo">
+                            {% for item in matriz_mensal %}
+                            <tr>
+                                <td>{{ item.mes_label }}</td>
+                                <td>{{ item.total }}</td>
+                                <td>{{ '%.4f'|format(item.indice) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma reclamação registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Índice de reclamação por mês</h3>
+                {% if matriz_mensal %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-matriz-indice"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma reclamação registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Causas principais por mês</h3>
+                {% if matriz_causas_tabela %}
+                <div class="dashboard-grafico-wrap dashboard-grafico-wrap-alto">
+                    <canvas id="grafico-matriz-causas-mes"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Causas principais por mês — tabela</h3>
+                {% if matriz_causas_tabela %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                {% for causa in matriz_causas_lista %}
+                                <th>{{ causa }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-matriz-causas-corpo">
+                            {% for linha in matriz_causas_tabela %}
+                            <tr>
+                                <td>{{ linha.mes_label }}</td>
+                                {% for valor in linha.valores %}
+                                <td>{{ valor }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Gráfico de Pareto — causas principais</h3>
+                {% if matriz_pareto %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-matriz-pareto"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Gráfico de Pareto — tabela</h3>
+                {% if matriz_pareto %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Causa</th>
+                                <th>Frequência</th>
+                                <th>Freq. acumulada</th>
+                                <th>% do total</th>
+                                <th>% acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-matriz-pareto-corpo">
+                            {% for item in matriz_pareto %}
+                            <tr>
+                                <td>{{ item.causa }}</td>
+                                <td>{{ item.frequencia }}</td>
+                                <td>{{ item.frequencia_acumulada }}</td>
+                                <td>{{ item.percentual }}%</td>
+                                <td>{{ item.percentual_acumulado }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Matriz ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Total de RDCs por ano</h3>
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-matriz-rdc-por-ano"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Total de RDCs por ano — tabela</h3>
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Total de RDCs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ano, total in rdc_por_ano_completo %}
+                            <tr>
+                                <td>{{ ano }}</td>
+                                <td>{{ total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div data-dashboard-subaba-conteudo="filial" class="dashboard-painel">
+
+            <div class="dashboard-secao filtro-ano-secao">
+                <h3>Filtro de ano</h3>
+                <p class="dashboard-vazio">Filtra os gráficos e tabelas por mês e o Gráfico de Pareto abaixo. "Total de RDCs por ano" sempre mostra todos os anos.</p>
+                <div class="filtro-ano-linha">
+                    <select id="filial-filtro-ano" class="select-filtro-ano" onchange="atualizarGraficosNaoAnuaisUnidade('filial', this.value)">
+                        <option value="todos">Todos os anos</option>
+                        {% for ano in filial_anos_disponiveis %}
+                        <option value="{{ ano }}">{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-exportar-excel" onclick="exportarDashboardExcel('filial')">Exportar para Excel</button>
+                </div>
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Reclamações por mês</h3>
+                {% if filial_mensal %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-filial-mensal"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma reclamação registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Reclamações e índice por mês</h3>
+                {% if filial_mensal %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                <th>Nº de reclamações</th>
+                                <th>Índice (nº / 2000)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-filial-mensal-corpo">
+                            {% for item in filial_mensal %}
+                            <tr>
+                                <td>{{ item.mes_label }}</td>
+                                <td>{{ item.total }}</td>
+                                <td>{{ '%.4f'|format(item.indice) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma reclamação registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Índice de reclamação por mês</h3>
+                {% if filial_mensal %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-filial-indice"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma reclamação registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Causas principais por mês</h3>
+                {% if filial_causas_tabela %}
+                <div class="dashboard-grafico-wrap dashboard-grafico-wrap-alto">
+                    <canvas id="grafico-filial-causas-mes"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Causas principais por mês — tabela</h3>
+                {% if filial_causas_tabela %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                {% for causa in filial_causas_lista %}
+                                <th>{{ causa }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-filial-causas-corpo">
+                            {% for linha in filial_causas_tabela %}
+                            <tr>
+                                <td>{{ linha.mes_label }}</td>
+                                {% for valor in linha.valores %}
+                                <td>{{ valor }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Gráfico de Pareto — causas principais</h3>
+                {% if filial_pareto %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-filial-pareto"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Gráfico de Pareto — tabela</h3>
+                {% if filial_pareto %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Causa</th>
+                                <th>Frequência</th>
+                                <th>Freq. acumulada</th>
+                                <th>% do total</th>
+                                <th>% acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-filial-pareto-corpo">
+                            {% for item in filial_pareto %}
+                            <tr>
+                                <td>{{ item.causa }}</td>
+                                <td>{{ item.frequencia }}</td>
+                                <td>{{ item.frequencia_acumulada }}</td>
+                                <td>{{ item.percentual }}%</td>
+                                <td>{{ item.percentual_acumulado }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada para Filial - Mogi ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Total de RDCs por ano</h3>
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-rdc-por-ano"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Total de RDCs por ano — tabela</h3>
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Total de RDCs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ano, total in rdc_por_ano_completo %}
+                            <tr>
+                                <td>{{ ano }}</td>
+                                <td>{{ total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div data-dashboard-subaba-conteudo="combinado" hidden class="dashboard-painel">
+
+            <div class="dashboard-secao filtro-ano-secao">
+                <h3>Filtro de ano</h3>
+                <p class="dashboard-vazio">Filtra o Gráfico de Pareto e as Reclamações por Mês abaixo. Os gráficos anuais sempre mostram todos os anos.</p>
+                <div class="filtro-ano-linha">
+                    <select id="combinado-filtro-ano" class="select-filtro-ano" onchange="atualizarGraficosNaoAnuaisCombinado(this.value)">
+                        <option value="todos">Todos os anos</option>
+                        {% for ano in combinado_anos_disponiveis %}
+                        <option value="{{ ano }}">{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-exportar-excel" onclick="exportarDashboardExcel('combinado')">Exportar para Excel</button>
+                </div>
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>4 Causas Principais por Ano</h3>
+                {% if combinado_causas_top %}
+                <div class="dashboard-grafico-wrap dashboard-grafico-wrap-alto">
+                    <canvas id="grafico-combinado-causas-ano"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>4 Causas Principais por Ano — tabela</h3>
+                {% if combinado_causas_top %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                {% for causa in combinado_causas_top %}
+                                <th>{{ causa }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for linha in combinado_causas_ano_tabela %}
+                            <tr>
+                                <td>{{ linha.ano }}</td>
+                                {% for valor in linha.valores %}
+                                <td>{{ valor }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Gráfico de Pareto — Filial + Matriz</h3>
+                {% if combinado_pareto %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-combinado-pareto"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Gráfico de Pareto — Filial + Matriz — tabela</h3>
+                {% if combinado_pareto %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Causa</th>
+                                <th>Frequência</th>
+                                <th>Freq. acumulada</th>
+                                <th>% do total</th>
+                                <th>% acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-combinado-pareto-corpo">
+                            {% for item in combinado_pareto %}
+                            <tr>
+                                <td>{{ item.causa }}</td>
+                                <td>{{ item.frequencia }}</td>
+                                <td>{{ item.frequencia_acumulada }}</td>
+                                <td>{{ item.percentual }}%</td>
+                                <td>{{ item.percentual_acumulado }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma causa principal registrada ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Total de RDCs por Ano — Filial + Matriz</h3>
+                {% if combinado_rdc_por_ano %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-combinado-rdc-por-ano"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma RDC com unidade definida ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Total de RDCs por Ano — Filial + Matriz — tabela</h3>
+                {% if combinado_rdc_por_ano %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Total de RDCs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ano, total in combinado_rdc_por_ano %}
+                            <tr>
+                                <td>{{ ano }}</td>
+                                <td>{{ total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma RDC com unidade definida ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Reclamações por Mês — Filial x Matriz</h3>
+                {% if combinado_mensal %}
+                <div class="dashboard-grafico-wrap">
+                    <canvas id="grafico-combinado-mensal"></canvas>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma RDC com unidade definida ainda.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-secao">
+                <h3>Reclamações por Mês — Filial x Matriz — tabela</h3>
+                {% if combinado_mensal %}
+                <div class="dashboard-tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                <th>Filial</th>
+                                <th>Matriz</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-combinado-mensal-corpo">
+                            {% for item in combinado_mensal %}
+                            <tr>
+                                <td>{{ item.mes_label }}</td>
+                                <td>{{ item.filial }}</td>
+                                <td>{{ item.matriz }}</td>
+                                <td>{{ item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="dashboard-vazio">Nenhuma RDC com unidade definida ainda.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="visualizador-fotos" class="visualizador-overlay" hidden onclick="if (event.target === this) fecharVisualizador()">
+
+    <button type="button" class="visualizador-fechar" onclick="fecharVisualizador()">&times;</button>
+
+    <button type="button" class="visualizador-seta visualizador-anterior" onclick="fotoAnterior()">&#10094;</button>
+
+    <img id="visualizador-imagem" class="visualizador-imagem" src="" alt="Foto anexada da RDC">
+
+    <button type="button" class="visualizador-seta visualizador-proxima" onclick="fotoProxima()">&#10095;</button>
+
+    <div id="visualizador-contador" class="visualizador-contador"></div>
+
+</div>
+
+<div id="modal-formulario" class="modal-overlay" hidden onmousedown="iniciouCliqueNoOverlay(event)" onclick="fecharSeCliqueCompletoNoOverlay(event, fecharModalFormulario)">
+    <div class="modal-card">
+
+        <div class="modal-cabecalho">
+            <h2>Cadastro de Ficha de Reclamação</h2>
+            <button type="button" class="modal-fechar" onclick="fecharModalFormulario()">&times;</button>
+        </div>
+
+        <div id="modal-erro" class="erro" hidden></div>
+
+        <form id="form-nova-rdc" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label>Unidade</label>
+                <div class="radio-group-unidade">
+                    <label class="radio-opcao-unidade">
+                        <input type="radio" name="unidade" value="Matriz" required>
+                        Matriz
+                    </label>
+                    <label class="radio-opcao-unidade">
+                        <input type="radio" name="unidade" value="Filial - Mogi">
+                        Filial - Mogi
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-numero">Nº</label>
+                <input type="text" id="modal-numero" name="numero" required>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-cliente">Cliente</label>
+                <input type="text" id="modal-cliente" name="cliente" required>
+            </div>
+
+            <div class="form-group">
+                <label>E-mail</label>
+                <div id="modal-lista-emails">
+                    <div class="linha-email">
+                        <input type="email" name="email" placeholder="email@exemplo.com">
+                    </div>
+                </div>
+                <button type="button" class="btn-adicionar-email" onclick="adicionarCampoEmailModal()">+ Adicionar e-mail</button>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-cpf_cnpj">CPF ou CNPJ</label>
+                <input type="text" id="modal-cpf_cnpj" name="cpf_cnpj" maxlength="18" placeholder="000.000.000-00" required>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-telefone">Telefone</label>
+                <input type="tel" id="modal-telefone" name="telefone" maxlength="15" placeholder="(00) 00000-0000">
+                <p class="dica">Informe pelo menos um e-mail ou telefone.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-endereco">Endereço</label>
+                <input type="text" id="modal-endereco" name="endereco">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-cep">CEP</label>
+                <input type="text" id="modal-cep" name="cep" maxlength="9" placeholder="00000-000">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-nota_fiscal">Nota Fiscal</label>
+                <input type="text" id="modal-nota_fiscal" name="nota_fiscal">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-data">Data</label>
+                <input type="date" id="modal-data" name="data">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-vendedor">Vendedor</label>
+                <input type="text" id="modal-vendedor" name="vendedor">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-quantidade_defeitos">Quantidade de defeitos</label>
+                <input type="text" id="modal-quantidade_defeitos" name="quantidade_defeitos" placeholder="Ex.: 5 rolos de NONTECK DRT30 150cm">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-participantes">Participantes</label>
+                <input type="text" id="modal-participantes" name="participantes" placeholder="Colaboradores envolvidos neste documento">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-preferencia_cliente">Preferência do cliente</label>
+                <input type="text" id="modal-preferencia_cliente" name="preferencia_cliente" placeholder="Produtos de preferência do cliente">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-relato-editor">Relato do Cliente</label>
+                <div class="editor-toolbar">
+                    <button type="button" class="editor-btn negrito" title="Negrito" onclick="aplicarFormatacaoRelatoModal('bold')">B</button>
+                    <button type="button" class="editor-btn italico" title="Itálico" onclick="aplicarFormatacaoRelatoModal('italic')">I</button>
+                    <button type="button" class="editor-btn marcador" title="Marcar" onclick="aplicarFormatacaoRelatoModal('mark')"><mark>M</mark></button>
+                </div>
+                <div id="modal-relato-editor" class="editor-relato" contenteditable="true"></div>
+                <input type="hidden" name="relato" id="modal-relato-input">
+            </div>
+
+            <div class="form-group">
+                <label for="modal-anexos">Anexar fotos (opcional)</label>
+                <input
+                    type="file"
+                    id="modal-anexos"
+                    name="anexos"
+                    accept="image/png, image/jpeg, image/gif, image/webp"
+                    multiple
+                    onchange="document.getElementById('modal-fotos').checked = this.files.length > 0">
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="modal-fotos" onclick="return false;" tabindex="-1">
+                <label for="modal-fotos">Possui fotos?</label>
+            </div>
+
+            <div class="form-group campo-causa-destaque">
+                <label for="modal-causa_principal">Causa Principal</label>
+                <input type="text" id="modal-causa_principal" name="causa_principal" list="modal-lista-causas-datalist" placeholder="Causa principal da reclamação">
+                <datalist id="modal-lista-causas-datalist">
+                    {% for causa in causas %}
+                    <option value="{{ causa }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+
+            <button type="submit" id="modal-btn-enviar">Enviar</button>
+
+        </form>
+
+    </div>
+</div>
+
+<script>{{ MASCARAS_JS|safe }}</script>
+<script>{{ CHARTJS_JS|safe }}</script>
+<script>{{ CHARTJS_DATALABELS_JS|safe }}</script>
+
+<script>
+
+function abrirModalFormulario() {
+    document.getElementById("modal-formulario").hidden = false;
+}
+
+function fecharModalFormulario() {
+    document.getElementById("modal-formulario").hidden = true;
+}
+
+function iniciouCliqueNoOverlay(evento) {
+    evento.currentTarget.dataset.cliqueIniciadoNoOverlay = (evento.target === evento.currentTarget) ? "1" : "0";
+}
+
+function fecharSeCliqueCompletoNoOverlay(evento, callback) {
+    const iniciouNoOverlay = evento.currentTarget.dataset.cliqueIniciadoNoOverlay === "1";
+    evento.currentTarget.dataset.cliqueIniciadoNoOverlay = "0";
+
+    if (evento.target === evento.currentTarget && iniciouNoOverlay) {
+        callback();
+    }
+}
+
+function adicionarCampoEmailModal() {
+
+    const container = document.getElementById("modal-lista-emails");
+
+    const linha = document.createElement("div");
+    linha.className = "linha-email";
+    linha.innerHTML =
+        '<input type="email" name="email" placeholder="email@exemplo.com">' +
+        '<button type="button" class="btn-remover-email" title="Remover e-mail" onclick="this.parentElement.remove()">&times;</button>';
+
+    container.appendChild(linha);
+    linha.querySelector("input").focus();
+}
+
+function aplicarFormatacaoRelatoModal(comando) {
+
+    const editor = document.getElementById("modal-relato-editor");
+    editor.focus();
+
+    if (comando === "mark") {
+        alternarMarcacaoModal();
+    } else {
+        document.execCommand(comando, false, null);
+    }
+}
+
+function alternarMarcacaoModal() {
+
+    const selecao = window.getSelection();
+    if (!selecao.rangeCount || selecao.isCollapsed) return;
+
+    const range = selecao.getRangeAt(0);
+    let noAncestral = range.commonAncestorContainer;
+    if (noAncestral.nodeType === 3) noAncestral = noAncestral.parentNode;
+
+    const marcadorExistente = noAncestral.closest && noAncestral.closest("mark");
+
+    if (marcadorExistente) {
+        const pai = marcadorExistente.parentNode;
+        while (marcadorExistente.firstChild) {
+            pai.insertBefore(marcadorExistente.firstChild, marcadorExistente);
+        }
+        pai.removeChild(marcadorExistente);
+        return;
+    }
+
+    try {
+        const marcador = document.createElement("mark");
+        range.surroundContents(marcador);
+    } catch (erro) {
+        const conteudo = range.extractContents();
+        const marcador = document.createElement("mark");
+        marcador.appendChild(conteudo);
+        range.insertNode(marcador);
+    }
+}
+
+document.getElementById("form-nova-rdc").addEventListener("submit", function(evento) {
+
+    evento.preventDefault();
+
+    document.getElementById("modal-relato-input").value = document.getElementById("modal-relato-editor").innerHTML;
+
+    const erroDiv = document.getElementById("modal-erro");
+    const botaoEnviar = document.getElementById("modal-btn-enviar");
+    const formData = new FormData(this);
+
+    erroDiv.hidden = true;
+    botaoEnviar.disabled = true;
+    botaoEnviar.textContent = "Enviando...";
+
+    fetch("{{ url_for('formulario') }}", {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(function(resposta) {
+        return resposta.json();
+    })
+    .then(function(dados) {
+        if (dados.sucesso) {
+            window.location.reload();
+            return;
+        }
+
+        erroDiv.textContent = dados.erro || "Não foi possível salvar a RDC.";
+        erroDiv.hidden = false;
+        botaoEnviar.disabled = false;
+        botaoEnviar.textContent = "Enviar";
+    })
+    .catch(function() {
+        erroDiv.textContent = "Erro ao enviar o formulário. Tente novamente.";
+        erroDiv.hidden = false;
+        botaoEnviar.disabled = false;
+        botaoEnviar.textContent = "Enviar";
+    });
+});
+
+document.addEventListener("keydown", function(evento) {
+
+    if (evento.key === "Escape" && !document.getElementById("modal-formulario").hidden) {
+        fecharModalFormulario();
+    }
+});
+
+let fotosListaAtual = [];
+let fotoAtual = 0;
+
+function abrirVisualizador(fotos) {
+
+    if (!fotos || !fotos.length) return;
+
+    fotosListaAtual = fotos;
+    fotoAtual = 0;
+    atualizarImagemVisualizador();
+    document.getElementById("visualizador-fotos").hidden = false;
+}
+
+function fecharVisualizador() {
+    document.getElementById("visualizador-fotos").hidden = true;
+}
+
+function fotoProxima() {
+    fotoAtual = (fotoAtual + 1) % fotosListaAtual.length;
+    atualizarImagemVisualizador();
+}
+
+function fotoAnterior() {
+    fotoAtual = (fotoAtual - 1 + fotosListaAtual.length) % fotosListaAtual.length;
+    atualizarImagemVisualizador();
+}
+
+function atualizarImagemVisualizador() {
+    document.getElementById("visualizador-imagem").src = fotosListaAtual[fotoAtual];
+    document.getElementById("visualizador-contador").textContent =
+        (fotoAtual + 1) + " / " + fotosListaAtual.length;
+}
+
+document.addEventListener("keydown", function(evento) {
+
+    const overlay = document.getElementById("visualizador-fotos");
+    if (overlay.hidden) return;
+
+    if (evento.key === "ArrowRight") fotoProxima();
+    else if (evento.key === "ArrowLeft") fotoAnterior();
+    else if (evento.key === "Escape") fecharVisualizador();
+});
+
+function filtrarRdcs() {
+
+    const termo = document.getElementById("busca-rdc").value.trim().toLowerCase();
+    const linhas = document.querySelectorAll("tbody tr[data-linha-rdc]");
+    let visiveis = 0;
+
+    linhas.forEach(function(linha) {
+        const celulas = linha.querySelectorAll("td");
+        const numero = (celulas[0] ? celulas[0].textContent : "").toLowerCase();
+        const notaFiscal = (celulas[7] ? celulas[7].textContent : "").toLowerCase();
+        const data = (celulas[8] ? celulas[8].textContent : "").toLowerCase();
+
+        const corresponde = !termo ||
+            numero.includes(termo) ||
+            notaFiscal.includes(termo) ||
+            data.includes(termo);
+
+        linha.hidden = !corresponde;
+        if (corresponde) visiveis++;
+    });
+
+    document.getElementById("contagem-rdcs").textContent = visiveis;
+}
+
+function fecharMenus() {
+    document.querySelectorAll('.menu').forEach(function(menu) {
+        menu.style.display = 'none';
+    });
+}
+
+function toggleMenu(id, btn) {
+
+    const menu = document.getElementById('menu-' + id);
+    const jaAberto = menu && menu.style.display === 'block';
+
+    fecharMenus();
+
+    if (menu && !jaAberto) {
+        menu.style.display = 'block';
+
+        const rect = btn.getBoundingClientRect();
+        let left = rect.right - menu.offsetWidth;
+        left = Math.max(10, Math.min(left, window.innerWidth - menu.offsetWidth - 10));
+
+        menu.style.top = (rect.bottom + 5) + 'px';
+        menu.style.left = left + 'px';
+    }
+}
+
+document.addEventListener('click', function(event) {
+
+    if (!event.target.closest('.acoes') && !event.target.closest('.menu')) {
+        fecharMenus();
+    }
+
+});
+
+window.addEventListener('scroll', fecharMenus, true);
+window.addEventListener('resize', fecharMenus);
+
+function mostrarAbaPainel(nome) {
+    document.querySelectorAll(".painel-aba-btn").forEach(function(btn) {
+        btn.classList.toggle("ativo", btn.dataset.painelAba === nome);
+    });
+    document.querySelectorAll("[data-painel-aba-conteudo]").forEach(function(div) {
+        div.hidden = div.dataset.painelAbaConteudo !== nome;
+    });
+
+    if (nome === "dashboard") {
+        inicializarDashboardFilial();
+    }
+}
+
+function mostrarSubAbaDashboard(nome) {
+    document.querySelectorAll(".dashboard-subaba-btn").forEach(function(btn) {
+        btn.classList.toggle("ativo", btn.dataset.dashboardSubaba === nome);
+    });
+    document.querySelectorAll("[data-dashboard-subaba-conteudo]").forEach(function(div) {
+        div.hidden = div.dataset.dashboardSubabaConteudo !== nome;
+    });
+
+    if (nome === "filial") {
+        inicializarDashboardFilial();
+    } else if (nome === "matriz") {
+        inicializarDashboardMatriz();
+    } else if (nome === "combinado") {
+        inicializarDashboardCombinado();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    registrarCoresCausas({{ causas|tojson }});
+
+    document.querySelectorAll(".badge-causa[data-causa-nome]").forEach(function(el) {
+        el.style.background = corParaCausa(el.dataset.causaNome);
+    });
+});
+
+const filialMensalDados = {{ filial_mensal|tojson }};
+const filialCausasLista = {{ filial_causas_lista|tojson }};
+const filialCausasTabela = {{ filial_causas_tabela|tojson }};
+const filialParetoDados = {{ filial_pareto|tojson }};
+const filialParetoPorAno = {{ filial_pareto_por_ano|tojson }};
+
+const matrizMensalDados = {{ matriz_mensal|tojson }};
+const matrizCausasLista = {{ matriz_causas_lista|tojson }};
+const matrizCausasTabela = {{ matriz_causas_tabela|tojson }};
+const matrizParetoDados = {{ matriz_pareto|tojson }};
+const matrizParetoPorAno = {{ matriz_pareto_por_ano|tojson }};
+
+const combinadoCausasTop = {{ combinado_causas_top|tojson }};
+const combinadoCausasAnoTabela = {{ combinado_causas_ano_tabela|tojson }};
+const combinadoParetoDados = {{ combinado_pareto|tojson }};
+const combinadoParetoPorAno = {{ combinado_pareto_por_ano|tojson }};
+const combinadoRdcPorAno = {{ combinado_rdc_por_ano|tojson }};
+const combinadoMensalDados = {{ combinado_mensal|tojson }};
+
+const rdcPorAnoCompleto = {{ rdc_por_ano_completo|tojson }};
+
+const CORES_EIXO_DASHBOARD = "#9ca6b5";
+const CORES_GRADE_DASHBOARD = "#292d36";
+const CORES_LEGENDA_DASHBOARD = "#e6e6e6";
+
+function opcoesEixoPadrao(extra) {
+    return Object.assign({
+        ticks: { color: CORES_EIXO_DASHBOARD },
+        grid: { color: CORES_GRADE_DASHBOARD }
+    }, extra || {});
+}
+
+function graficoPareto(idCanvas, dadosPareto) {
+    return new Chart(document.getElementById(idCanvas), {
+        plugins: [ChartDataLabels],
+        data: {
+            labels: dadosPareto.map(function(item) { return item.causa; }),
+            datasets: [
+                {
+                    type: "bar",
+                    label: "Frequência",
+                    data: dadosPareto.map(function(item) { return item.frequencia; }),
+                    backgroundColor: dadosPareto.map(function(item) { return corParaCausa(item.causa); }),
+                    yAxisID: "y",
+                    order: 2,
+                    datalabels: {
+                        color: "#f5f5f5",
+                        anchor: "end",
+                        align: "top",
+                        offset: 2,
+                        clamp: true,
+                        font: { weight: "bold", size: 11 },
+                        formatter: function(valor) { return valor; }
+                    }
+                },
+                {
+                    type: "line",
+                    label: "% Acumulado",
+                    data: dadosPareto.map(function(item) { return item.percentual_acumulado; }),
+                    borderColor: "#ff9100",
+                    backgroundColor: "#ff9100",
+                    yAxisID: "y1",
+                    tension: 0.2,
+                    order: 1,
+                    datalabels: {
+                        color: "#ff9100",
+                        anchor: "end",
+                        align: "top",
+                        offset: 6,
+                        clamp: true,
+                        font: { weight: "bold", size: 11 },
+                        formatter: function(valor) { return valor.toFixed(1) + "%"; }
+                    }
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 8 } },
+            plugins: { legend: { labels: { color: CORES_LEGENDA_DASHBOARD, padding: 28 } } },
+            scales: {
+                x: opcoesEixoPadrao(),
+                y: opcoesEixoPadrao({ beginAtZero: true, ticks: { color: CORES_EIXO_DASHBOARD, precision: 0 } }),
+                y1: {
+                    beginAtZero: true,
+                    max: 115,
+                    afterBuildTicks: function(eixo) {
+                        eixo.ticks = eixo.ticks.filter(function(t) { return t.value <= 100; });
+                    },
+                    position: "right",
+                    ticks: {
+                        color: CORES_EIXO_DASHBOARD,
+                        callback: function(valor) { return valor + "%"; }
+                    },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+}
+
+function graficoRdcPorAno(idCanvas, dados) {
+    new Chart(document.getElementById(idCanvas), {
+        type: "bar",
+        data: {
+            labels: dados.map(function(item) { return item[0]; }),
+            datasets: [{
+                label: "Total de RDCs",
+                data: dados.map(function(item) { return item[1]; }),
+                backgroundColor: "#2563eb"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: CORES_LEGENDA_DASHBOARD } } },
+            scales: {
+                x: opcoesEixoPadrao(),
+                y: opcoesEixoPadrao({ beginAtZero: true, ticks: { color: CORES_EIXO_DASHBOARD, precision: 0 } })
+            }
+        }
+    });
+}
+
+function inicializarGraficosUnidade(cfg) {
+    const refs = { mensalChart: null, indiceChart: null, causasChart: null, paretoChart: null };
+
+    if (cfg.mensal.length > 0) {
+        const labelsMensal = cfg.mensal.map(function(item) { return item.mes_label; });
+
+        refs.mensalChart = new Chart(document.getElementById(cfg.idMensal), {
+            type: "line",
+            data: {
+                labels: labelsMensal,
+                datasets: [{
+                    label: "Reclamações",
+                    data: cfg.mensal.map(function(item) { return item.total; }),
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37, 99, 235, 0.15)",
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: CORES_LEGENDA_DASHBOARD } } },
+                scales: {
+                    x: opcoesEixoPadrao(),
+                    y: opcoesEixoPadrao({ beginAtZero: true, ticks: { color: CORES_EIXO_DASHBOARD, precision: 0 } })
+                }
+            }
+        });
+
+        refs.indiceChart = new Chart(document.getElementById(cfg.idIndice), {
+            type: "bar",
+            data: {
+                labels: labelsMensal,
+                datasets: [{
+                    label: "Índice (nº / 2000)",
+                    data: cfg.mensal.map(function(item) { return item.indice; }),
+                    backgroundColor: "#16a34a"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: CORES_LEGENDA_DASHBOARD } } },
+                scales: {
+                    x: opcoesEixoPadrao(),
+                    y: opcoesEixoPadrao({ beginAtZero: true })
+                }
+            }
+        });
+    }
+
+    if (cfg.causasTabela.length > 0) {
+        refs.causasChart = graficoCausasAgrupadas(cfg.idCausasMes, cfg.causasLista, cfg.causasTabela, "mes_label");
+    }
+
+    if (cfg.pareto.length > 0) {
+        refs.paretoChart = graficoPareto(cfg.idPareto, cfg.pareto);
+    }
+
+    graficoRdcPorAno(cfg.idAno, rdcPorAnoCompleto);
+
+    return refs;
+}
+
+let dashboardFilialInicializado = false;
+let filialRefs = null;
+
+function inicializarDashboardFilial() {
+    if (dashboardFilialInicializado) return;
+    dashboardFilialInicializado = true;
+
+    filialRefs = inicializarGraficosUnidade({
+        mensal: filialMensalDados,
+        causasLista: filialCausasLista,
+        causasTabela: filialCausasTabela,
+        pareto: filialParetoDados,
+        idMensal: "grafico-filial-mensal",
+        idIndice: "grafico-filial-indice",
+        idCausasMes: "grafico-filial-causas-mes",
+        idPareto: "grafico-filial-pareto",
+        idAno: "grafico-rdc-por-ano"
+    });
+}
+
+let dashboardMatrizInicializado = false;
+let matrizRefs = null;
+
+function inicializarDashboardMatriz() {
+    if (dashboardMatrizInicializado) return;
+    dashboardMatrizInicializado = true;
+
+    matrizRefs = inicializarGraficosUnidade({
+        mensal: matrizMensalDados,
+        causasLista: matrizCausasLista,
+        causasTabela: matrizCausasTabela,
+        pareto: matrizParetoDados,
+        idMensal: "grafico-matriz-mensal",
+        idIndice: "grafico-matriz-indice",
+        idCausasMes: "grafico-matriz-causas-mes",
+        idPareto: "grafico-matriz-pareto",
+        idAno: "grafico-matriz-rdc-por-ano"
+    });
+}
+
+function graficoCausasPorAno(idCanvas, causasTop, tabela) {
+    return graficoCausasAgrupadas(idCanvas, causasTop, tabela, "ano");
+}
+
+function graficoCausasAgrupadas(idCanvas, causasLista, tabela, campoLabel) {
+    if (!tabela.length) return null;
+
+    const labels = tabela.map(function(linha) { return linha[campoLabel]; });
+
+    const datasets = causasLista.map(function(causa, indice) {
+        return {
+            label: causa,
+            data: tabela.map(function(linha) { return linha.valores[indice]; }),
+            backgroundColor: corParaCausa(causa),
+            datalabels: {
+                display: function(contexto) {
+                    return contexto.dataset.data[contexto.dataIndex] > 0;
+                },
+                color: "#f5f5f5",
+                anchor: "end",
+                align: "top",
+                offset: 1,
+                clamp: true,
+                font: { size: 10, weight: "bold" }
+            }
+        };
+    });
+
+    const maiorValor = datasets.reduce(function(maior, ds) {
+        return Math.max(maior, ds.data.reduce(function(m, v) { return Math.max(m, v || 0); }, 0));
+    }, 0);
+    // 25% de folga acima da maior barra, válido para qualquer valor máximo.
+    const maxEixo = maiorValor > 0 ? Math.ceil(maiorValor * 1.25) : undefined;
+
+    return new Chart(document.getElementById(idCanvas), {
+        type: "bar",
+        plugins: [ChartDataLabels],
+        data: { labels: labels, datasets: datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 16 } },
+            plugins: {
+                legend: {
+                    position: "top",
+                    align: "start",
+                    labels: { color: CORES_LEGENDA_DASHBOARD, boxWidth: 14, padding: 28 }
+                }
+            },
+            scales: {
+                x: opcoesEixoPadrao(),
+                y: opcoesEixoPadrao({
+                    beginAtZero: true,
+                    suggestedMax: maxEixo,
+                    ticks: { color: CORES_EIXO_DASHBOARD, precision: 0 }
+                })
+            }
+        }
+    });
+}
+
+function graficoMensalCombinado(idCanvas, dados) {
+    if (!dados.length) return null;
+
+    return new Chart(document.getElementById(idCanvas), {
+        data: {
+            labels: dados.map(function(item) { return item.mes_label; }),
+            datasets: [
+                {
+                    type: "bar",
+                    label: "Filial",
+                    data: dados.map(function(item) { return item.filial; }),
+                    backgroundColor: "#06b6d4",
+                    order: 2
+                },
+                {
+                    type: "bar",
+                    label: "Matriz",
+                    data: dados.map(function(item) { return item.matriz; }),
+                    backgroundColor: "#16a34a",
+                    order: 2
+                },
+                {
+                    type: "line",
+                    label: "Total",
+                    data: dados.map(function(item) { return item.total; }),
+                    borderColor: "#ff9100",
+                    backgroundColor: "#ff9100",
+                    tension: 0.2,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 16 } },
+            plugins: { legend: { labels: { color: CORES_LEGENDA_DASHBOARD, padding: 20 } } },
+            scales: {
+                x: opcoesEixoPadrao(),
+                y: opcoesEixoPadrao({ beginAtZero: true, ticks: { color: CORES_EIXO_DASHBOARD, precision: 0 } })
+            }
+        }
+    });
+}
+
+let dashboardCombinadoInicializado = false;
+let graficoComboParetoRef = null;
+let graficoComboMensalRef = null;
+
+function inicializarDashboardCombinado() {
+    if (dashboardCombinadoInicializado) return;
+    dashboardCombinadoInicializado = true;
+
+    graficoCausasPorAno("grafico-combinado-causas-ano", combinadoCausasTop, combinadoCausasAnoTabela);
+
+    if (combinadoParetoDados.length > 0) {
+        graficoComboParetoRef = graficoPareto("grafico-combinado-pareto", combinadoParetoDados);
+    }
+
+    if (combinadoRdcPorAno.length > 0) {
+        graficoRdcPorAno("grafico-combinado-rdc-por-ano", combinadoRdcPorAno);
+    }
+
+    graficoComboMensalRef = graficoMensalCombinado("grafico-combinado-mensal", combinadoMensalDados);
+}
+
+function escaparHtml(texto) {
+    const div = document.createElement("div");
+    div.textContent = texto == null ? "" : String(texto);
+    return div.innerHTML;
+}
+
+function exportarDashboardExcel(aba) {
+    const seletor = document.getElementById(aba + "-filtro-ano");
+    const ano = seletor ? seletor.value : "todos";
+    window.location.href = "/painel-qualidade/exportar-excel/" + aba + "?ano=" + encodeURIComponent(ano);
+}
+
+function atualizarGraficosNaoAnuaisCombinado(ano) {
+    const paretoFiltrado = (ano === "todos") ? combinadoParetoDados : (combinadoParetoPorAno[ano] || []);
+    const mensalFiltrado = (ano === "todos")
+        ? combinadoMensalDados
+        : combinadoMensalDados.filter(function(item) { return item.mes.indexOf(ano + "-") === 0; });
+
+    if (graficoComboParetoRef) {
+        graficoComboParetoRef.data.labels = paretoFiltrado.map(function(item) { return item.causa; });
+        graficoComboParetoRef.data.datasets[0].data = paretoFiltrado.map(function(item) { return item.frequencia; });
+        graficoComboParetoRef.data.datasets[0].backgroundColor = paretoFiltrado.map(function(item) { return corParaCausa(item.causa); });
+        graficoComboParetoRef.data.datasets[1].data = paretoFiltrado.map(function(item) { return item.percentual_acumulado; });
+        graficoComboParetoRef.update();
+    }
+
+    const corpoPareto = document.getElementById("tabela-combinado-pareto-corpo");
+    if (corpoPareto) {
+        corpoPareto.innerHTML = paretoFiltrado.map(function(item) {
+            return "<tr><td>" + escaparHtml(item.causa) + "</td><td>" + item.frequencia + "</td><td>" +
+                item.frequencia_acumulada + "</td><td>" + item.percentual + "%</td><td>" +
+                item.percentual_acumulado + "%</td></tr>";
+        }).join("");
+    }
+
+    if (graficoComboMensalRef) {
+        graficoComboMensalRef.data.labels = mensalFiltrado.map(function(item) { return item.mes_label; });
+        graficoComboMensalRef.data.datasets[0].data = mensalFiltrado.map(function(item) { return item.filial; });
+        graficoComboMensalRef.data.datasets[1].data = mensalFiltrado.map(function(item) { return item.matriz; });
+        graficoComboMensalRef.data.datasets[2].data = mensalFiltrado.map(function(item) { return item.total; });
+        graficoComboMensalRef.update();
+    }
+
+    const corpoMensal = document.getElementById("tabela-combinado-mensal-corpo");
+    if (corpoMensal) {
+        corpoMensal.innerHTML = mensalFiltrado.map(function(item) {
+            return "<tr><td>" + escaparHtml(item.mes_label) + "</td><td>" + item.filial + "</td><td>" +
+                item.matriz + "</td><td>" + item.total + "</td></tr>";
+        }).join("");
+    }
+}
+
+function atualizarGraficosNaoAnuaisUnidade(prefixo, ano) {
+    const cfg = (prefixo === "filial")
+        ? {
+            mensal: filialMensalDados,
+            causasLista: filialCausasLista,
+            causasTabela: filialCausasTabela,
+            paretoTodos: filialParetoDados,
+            paretoPorAno: filialParetoPorAno,
+            idCausasMes: "grafico-filial-causas-mes",
+            refs: filialRefs,
+            idTabelaMensal: "tabela-filial-mensal-corpo",
+            idTabelaCausas: "tabela-filial-causas-corpo",
+            idTabelaPareto: "tabela-filial-pareto-corpo"
+        }
+        : {
+            mensal: matrizMensalDados,
+            causasLista: matrizCausasLista,
+            causasTabela: matrizCausasTabela,
+            paretoTodos: matrizParetoDados,
+            paretoPorAno: matrizParetoPorAno,
+            idCausasMes: "grafico-matriz-causas-mes",
+            refs: matrizRefs,
+            idTabelaMensal: "tabela-matriz-mensal-corpo",
+            idTabelaCausas: "tabela-matriz-causas-corpo",
+            idTabelaPareto: "tabela-matriz-pareto-corpo"
+        };
+
+    if (!cfg.refs) return;
+
+    const mensalFiltrado = (ano === "todos")
+        ? cfg.mensal
+        : cfg.mensal.filter(function(item) { return item.mes.indexOf(ano + "-") === 0; });
+    const causasFiltrado = (ano === "todos")
+        ? cfg.causasTabela
+        : cfg.causasTabela.filter(function(linha) { return linha.mes.indexOf(ano + "-") === 0; });
+    const paretoFiltrado = (ano === "todos") ? cfg.paretoTodos : (cfg.paretoPorAno[ano] || []);
+
+    if (cfg.refs.mensalChart) {
+        cfg.refs.mensalChart.data.labels = mensalFiltrado.map(function(item) { return item.mes_label; });
+        cfg.refs.mensalChart.data.datasets[0].data = mensalFiltrado.map(function(item) { return item.total; });
+        cfg.refs.mensalChart.update();
+    }
+
+    if (cfg.refs.indiceChart) {
+        cfg.refs.indiceChart.data.labels = mensalFiltrado.map(function(item) { return item.mes_label; });
+        cfg.refs.indiceChart.data.datasets[0].data = mensalFiltrado.map(function(item) { return item.indice; });
+        cfg.refs.indiceChart.update();
+    }
+
+    const corpoMensal = document.getElementById(cfg.idTabelaMensal);
+    if (corpoMensal) {
+        corpoMensal.innerHTML = mensalFiltrado.map(function(item) {
+            return "<tr><td>" + escaparHtml(item.mes_label) + "</td><td>" + item.total + "</td><td>" +
+                item.indice.toFixed(4) + "</td></tr>";
+        }).join("");
+    }
+
+    if (cfg.refs.causasChart) {
+        cfg.refs.causasChart.destroy();
+    }
+    cfg.refs.causasChart = graficoCausasAgrupadas(cfg.idCausasMes, cfg.causasLista, causasFiltrado, "mes_label");
+
+    const corpoCausas = document.getElementById(cfg.idTabelaCausas);
+    if (corpoCausas) {
+        corpoCausas.innerHTML = causasFiltrado.map(function(linha) {
+            return "<tr><td>" + escaparHtml(linha.mes_label) + "</td>" +
+                linha.valores.map(function(valor) { return "<td>" + valor + "</td>"; }).join("") +
+                "</tr>";
+        }).join("");
+    }
+
+    if (cfg.refs.paretoChart) {
+        cfg.refs.paretoChart.data.labels = paretoFiltrado.map(function(item) { return item.causa; });
+        cfg.refs.paretoChart.data.datasets[0].data = paretoFiltrado.map(function(item) { return item.frequencia; });
+        cfg.refs.paretoChart.data.datasets[0].backgroundColor = paretoFiltrado.map(function(item) { return corParaCausa(item.causa); });
+        cfg.refs.paretoChart.data.datasets[1].data = paretoFiltrado.map(function(item) { return item.percentual_acumulado; });
+        cfg.refs.paretoChart.update();
+    }
+
+    const corpoPareto = document.getElementById(cfg.idTabelaPareto);
+    if (corpoPareto) {
+        corpoPareto.innerHTML = paretoFiltrado.map(function(item) {
+            return "<tr><td>" + escaparHtml(item.causa) + "</td><td>" + item.frequencia + "</td><td>" +
+                item.frequencia_acumulada + "</td><td>" + item.percentual + "%</td><td>" +
+                item.percentual_acumulado + "%</td></tr>";
+        }).join("");
+    }
+}
+
+</script>
+
+</body>
+
+</html>
