@@ -254,7 +254,27 @@ def _preencher_acoes_corretivas(tabela, acoes):
             celula.add_paragraph()
 
 
-def gerar_ficha_reclamacao(rdc, lista_fotos=None, acoes=None):
+def _formatar_quantidade_produto(quantidade):
+    try:
+        quantidade = float(quantidade)
+    except (TypeError, ValueError):
+        return str(quantidade or "")
+
+    if quantidade.is_integer():
+        return str(int(quantidade))
+    return str(quantidade)
+
+
+def _preencher_produtos_defeituosos(tabela, produtos):
+    linhas = []
+    for _, _origem, codigo, descricao, quantidade in (produtos or []):
+        rotulo = " — ".join(parte for parte in (codigo, descricao) if parte)
+        linhas.append(f"{_formatar_quantidade_produto(quantidade)}x {rotulo}".strip())
+
+    _preencher_celula(tabela, 1, 1, linhas)
+
+
+def gerar_ficha_reclamacao(rdc, lista_fotos=None, acoes=None, produtos_defeituosos=None):
     (
         id_, numero, cliente, email, cpf_cnpj, telefone, endereco, cep,
         nota_fiscal, data, vendedor, fotos, relato, quantidade_defeitos,
@@ -285,7 +305,10 @@ def gerar_ficha_reclamacao(rdc, lista_fotos=None, acoes=None):
         endereco_linhas.append(f"CEP: {cep}")
     _preencher_celula(tabela_dados, 1, 0, endereco_linhas)
 
-    _preencher_celula(tabela_dados, 1, 1, [quantidade_defeitos] if quantidade_defeitos else [])
+    if produtos_defeituosos:
+        _preencher_produtos_defeituosos(tabela_dados, produtos_defeituosos)
+    else:
+        _preencher_celula(tabela_dados, 1, 1, [quantidade_defeitos] if quantidade_defeitos else [])
 
     nf_linha = f"NF: {nota_fiscal or '-'} | Data: {data or '-'} | Vendedor: {vendedor or '-'}"
     _preencher_celula(tabela_dados, 2, 0, [nf_linha])

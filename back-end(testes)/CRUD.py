@@ -83,6 +83,47 @@ def criar_tabela():
     if "titulo" not in colunas_acoes:
         cursor.execute("ALTER TABLE acoes_corretivas ADD COLUMN titulo TEXT NOT NULL DEFAULT ''")
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS notas_fiscais_itens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        num_docto TEXT NOT NULL,
+        num_docto_norm INTEGER NOT NULL,
+        serie TEXT,
+        cliente_codigo TEXT,
+        loja TEXT,
+        cliente_nome TEXT,
+        dt_emissao TEXT,
+        tipo_nota TEXT,
+        produto_codigo TEXT,
+        descricao TEXT,
+        quantidade REAL,
+        valor_unitario REAL,
+        valor_mercadoria REAL,
+        armaz TEXT,
+        cfo TEXT,
+        tes TEXT,
+        pedido TEXT,
+        it TEXT,
+        valor_ipi REAL,
+        valor_icms REAL,
+        valor_iss REAL,
+        desp_acessorias REAL,
+        total REAL
+    )""")
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_notas_fiscais_itens_norm ON notas_fiscais_itens(num_docto_norm)")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS produtos_defeituosos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rdc_id INTEGER NOT NULL,
+        origem TEXT NOT NULL DEFAULT 'manual',
+        codigo TEXT NOT NULL DEFAULT '',
+        descricao TEXT NOT NULL DEFAULT '',
+        quantidade REAL NOT NULL DEFAULT 0,
+        FOREIGN KEY (rdc_id) REFERENCES rdcs(id) ON DELETE CASCADE
+    )""")
+
     conexao.commit()
     cursor.close()
 
@@ -343,6 +384,100 @@ def remover_acao_corretiva(acao_id, rdc_id):
         "DELETE FROM acoes_corretivas WHERE id = ? AND rdc_id = ?",
         (acao_id, rdc_id)
     )
+    conexao.commit()
+    conexao.close()
+
+def buscar_itens_nota_fiscal(numero):
+    digitos = "".join(caractere for caractere in str(numero or "") if caractere.isdigit())
+    if not digitos:
+        return None
+
+    numero_normalizado = int(digitos)
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute("""
+    SELECT cliente_nome, produto_codigo, descricao, quantidade
+    FROM notas_fiscais_itens
+    WHERE num_docto_norm = ?
+    ORDER BY id
+    """, (numero_normalizado,))
+    linhas = cursor.fetchall()
+    conexao.close()
+
+    if not linhas:
+        return None
+
+    return {
+        "cliente": linhas[0][0],
+        "itens": [
+            {"codigo": codigo, "descricao": descricao, "quantidade": quantidade}
+            for _, codigo, descricao, quantidade in linhas
+        ]
+    }
+
+def listar_catalogo_produtos():
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute("""
+    SELECT DISTINCT produto_codigo, descricao
+    FROM notas_fiscais_itens
+    WHERE produto_codigo IS NOT NULL AND produto_codigo != ''
+    ORDER BY descricao
+    """)
+    resultado = cursor.fetchall()
+    conexao.close()
+    return resultado
+
+def _linhas_produtos_defeituosos(rdc_id, itens):
+    return [
+        (
+            rdc_id,
+            (item.get("origem") or "manual"),
+            (item.get("codigo") or "").strip(),
+            (item.get("descricao") or "").strip(),
+            item.get("quantidade") or 0
+        )
+        for item in itens
+        if (item.get("codigo") or "").strip() or (item.get("descricao") or "").strip()
+    ]
+
+def adicionar_produtos_defeituosos(rdc_id, itens):
+    linhas = _linhas_produtos_defeituosos(rdc_id, itens)
+    if not linhas:
+        return
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.executemany(
+        "INSERT INTO produtos_defeituosos (rdc_id, origem, codigo, descricao, quantidade) VALUES (?, ?, ?, ?, ?)",
+        linhas
+    )
+    conexao.commit()
+    conexao.close()
+
+def listar_produtos_defeituosos(rdc_id):
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute(
+        "SELECT id, origem, codigo, descricao, quantidade FROM produtos_defeituosos WHERE rdc_id = ? ORDER BY id",
+        (rdc_id,)
+    )
+    resultado = cursor.fetchall()
+    conexao.close()
+    return resultado
+
+def substituir_produtos_defeituosos(rdc_id, itens):
+    linhas = _linhas_produtos_defeituosos(rdc_id, itens)
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute("DELETE FROM produtos_defeituosos WHERE rdc_id = ?", (rdc_id,))
+    if linhas:
+        cursor.executemany(
+            "INSERT INTO produtos_defeituosos (rdc_id, origem, codigo, descricao, quantidade) VALUES (?, ?, ?, ?, ?)",
+            linhas
+        )
     conexao.commit()
     conexao.close()
 

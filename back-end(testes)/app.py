@@ -1,5 +1,6 @@
 import os
 import io
+import json
 import uuid
 import secrets
 import bleach
@@ -13,7 +14,9 @@ from CRUD import (
     atualizar_acao_individual, editar_acao_corretiva, remover_acao_corretiva,
     listar_causas_distintas, contar_rdc_por_causa, contar_rdc_sem_causa, contar_rdc_por_ano,
     listar_reclamacoes_por_mes, listar_causas_por_mes, contar_causas_unidade,
-    contar_causas_unidades, listar_causas_por_ano_unidades, contar_rdc_por_ano_unidades
+    contar_causas_unidades, listar_causas_por_ano_unidades, contar_rdc_por_ano_unidades,
+    buscar_itens_nota_fiscal, listar_catalogo_produtos, adicionar_produtos_defeituosos,
+    listar_produtos_defeituosos, substituir_produtos_defeituosos
 )
 from gerar_documento import gerar_ficha_reclamacao
 from gerar_excel import gerar_excel_unidade, gerar_excel_combinado
@@ -192,12 +195,21 @@ MASCARAS_JS = carregar_js_inline("js/mascaras.txt")
 LUCIDE_JS = carregar_js_inline("vendor/lucide/lucide.min.txt")
 CHARTJS_JS = carregar_js_inline("vendor/chartjs/chart.umd.txt")
 CHARTJS_DATALABELS_JS = carregar_js_inline("vendor/chartjs/chartjs-plugin-datalabels.txt")
+PRODUTOS_DEFEITUOSOS_JS = carregar_js_inline("js/produtos_defeituosos.txt")
+
+def montar_catalogo_produtos_json():
+    return json.dumps([
+        {"codigo": codigo, "descricao": descricao}
+        for codigo, descricao in listar_catalogo_produtos()
+    ], ensure_ascii=False)
 
 @app.context_processor
 def injetar_scripts_inline():
     return dict(
         MASCARAS_JS=MASCARAS_JS, LUCIDE_JS=LUCIDE_JS,
-        CHARTJS_JS=CHARTJS_JS, CHARTJS_DATALABELS_JS=CHARTJS_DATALABELS_JS
+        CHARTJS_JS=CHARTJS_JS, CHARTJS_DATALABELS_JS=CHARTJS_DATALABELS_JS,
+        PRODUTOS_DEFEITUOSOS_JS=PRODUTOS_DEFEITUOSOS_JS,
+        CATALOGO_PRODUTOS_JSON=CATALOGO_PRODUTOS_JSON
     )
 
 CHAVE_SECRETA_PATH = os.path.join(app.root_path, ".secret_key")
@@ -211,6 +223,8 @@ else:
     app.secret_key = nova_chave
 
 criar_tabela()
+
+CATALOGO_PRODUTOS_JSON = montar_catalogo_produtos_json()
 
 def login_required(f):
     @wraps(f)
@@ -263,8 +277,51 @@ def coletar_emails(formulario_form):
             emails.append(email)
     return emails
 
-def coletar_quantidade_defeitos(formulario_form):
-    return (formulario_form.get("quantidade_defeitos") or "").strip()
+def coletar_produtos_defeituosos(formulario_form):
+    bruto = formulario_form.get("produtos_defeituosos_json") or "[]"
+
+    try:
+        itens = json.loads(bruto)
+    except (TypeError, ValueError):
+        return []
+
+    if not isinstance(itens, list):
+        return []
+
+    resultado = []
+    for item in itens:
+        if not isinstance(item, dict):
+            continue
+
+        codigo = str(item.get("codigo") or "").strip()
+        descricao = str(item.get("descricao") or "").strip()
+        if not codigo and not descricao:
+            continue
+
+        try:
+            quantidade = float(item.get("quantidade") or 0)
+        except (TypeError, ValueError):
+            quantidade = 0
+
+        origem = item.get("origem") if item.get("origem") in ("banco", "manual") else "manual"
+        resultado.append({"origem": origem, "codigo": codigo, "descricao": descricao, "quantidade": quantidade})
+
+    return resultado
+
+def montar_produtos_defeituosos_json(rdc_id):
+    return json.dumps([
+        {"origem": origem, "codigo": codigo, "descricao": descricao, "quantidade": quantidade}
+        for _, origem, codigo, descricao, quantidade in listar_produtos_defeituosos(rdc_id)
+    ], ensure_ascii=False)
+
+def resumir_produtos_defeituosos(itens):
+    partes = []
+    for item in itens:
+        quantidade = item["quantidade"]
+        quantidade_texto = str(int(quantidade)) if float(quantidade).is_integer() else str(quantidade)
+        rotulo = " — ".join(parte for parte in (item["codigo"], item["descricao"]) if parte)
+        partes.append(f"{quantidade_texto}x {rotulo}".strip())
+    return "; ".join(partes)
 
 def processar_edicao_rdc(id):
     """Processa os campos comuns de edição de uma RDC a partir de request.form/files.
@@ -284,7 +341,8 @@ def processar_edicao_rdc(id):
     data = request.form.get("data")
     vendedor = request.form.get("vendedor")
     relato = sanitizar_relato(request.form.get("relato"))
-    quantidade_defeitos = coletar_quantidade_defeitos(request.form)
+    produtos_defeituosos = coletar_produtos_defeituosos(request.form)
+    quantidade_defeitos = resumir_produtos_defeituosos(produtos_defeituosos)
     participantes = request.form.get("participantes")
     preferencia_cliente = request.form.get("preferencia_cliente")
     causa_principal = (request.form.get("causa_principal") or "").strip()
@@ -350,6 +408,7 @@ def processar_edicao_rdc(id):
         remover_foto(foto_id)
 
     salvar_anexos(id, validos)
+    substituir_produtos_defeituosos(id, produtos_defeituosos)
 
     return True, None, None
 
@@ -405,7 +464,8 @@ def formulario():
         data = request.form.get("data")
         vendedor = request.form.get("vendedor")
         relato = sanitizar_relato(request.form.get("relato"))
-        quantidade_defeitos = coletar_quantidade_defeitos(request.form)
+        produtos_defeituosos = coletar_produtos_defeituosos(request.form)
+        quantidade_defeitos = resumir_produtos_defeituosos(produtos_defeituosos)
         participantes = request.form.get("participantes")
         preferencia_cliente = request.form.get("preferencia_cliente")
         causa_principal = (request.form.get("causa_principal") or "").strip()
@@ -456,6 +516,7 @@ def formulario():
             return render_template("formulario.html", erro=erro, dados=request.form, relato=relato, causas=listar_causas_distintas())
 
         salvar_anexos(novo_id, validos)
+        adicionar_produtos_defeituosos(novo_id, produtos_defeituosos)
 
         if eh_ajax:
             return jsonify(sucesso=True, id=novo_id)
@@ -463,6 +524,16 @@ def formulario():
         return redirect("/formulario")
 
     return render_template("formulario.html", causas=listar_causas_distintas())
+
+@app.route("/api/nota-fiscal/<numero>")
+@login_required
+def api_nota_fiscal(numero):
+    resultado = buscar_itens_nota_fiscal(numero)
+
+    if resultado is None:
+        return jsonify(encontrado=False)
+
+    return jsonify(encontrado=True, cliente=resultado["cliente"], itens=resultado["itens"])
 
 @app.route("/lista")
 @login_required
@@ -487,7 +558,8 @@ def visualizar_rdc(id):
                 erro=erro,
                 fotos=fotos_atuais if fotos_atuais is not None else listar_fotos(id),
                 acoes=listar_acoes_corretivas(id),
-                causas=listar_causas_distintas()
+                causas=listar_causas_distintas(),
+                produtos_defeituosos_json=montar_produtos_defeituosos_json(id)
             )
 
         return redirect(url_for("visualizar_rdc", id=id))
@@ -500,7 +572,8 @@ def visualizar_rdc(id):
         editando=False,
         fotos=listar_fotos(id),
         acoes=listar_acoes_corretivas(id),
-        causas=listar_causas_distintas()
+        causas=listar_causas_distintas(),
+        produtos_defeituosos_json=montar_produtos_defeituosos_json(id)
     )
 
 
@@ -649,7 +722,8 @@ def painel_qualidade_rdc(id):
                 erro=erro,
                 fotos=fotos_atuais if fotos_atuais is not None else listar_fotos(id),
                 acoes=listar_acoes_corretivas(id),
-                causas=listar_causas_distintas()
+                causas=listar_causas_distintas(),
+                produtos_defeituosos_json=montar_produtos_defeituosos_json(id)
             )
 
         return redirect(url_for("painel_qualidade_rdc", id=id))
@@ -665,7 +739,8 @@ def painel_qualidade_rdc(id):
         editando=False,
         fotos=listar_fotos(id),
         acoes=listar_acoes_corretivas(id),
-        causas=listar_causas_distintas()
+        causas=listar_causas_distintas(),
+        produtos_defeituosos_json=montar_produtos_defeituosos_json(id)
     )
 
 @app.route("/painel-qualidade/<int:id>/deletar")
@@ -728,7 +803,9 @@ def exportar_rdc(id):
     if rdc is None:
         return "Rdc não encontrada", 404
 
-    documento = gerar_ficha_reclamacao(rdc, listar_fotos(id), listar_acoes_corretivas(id))
+    documento = gerar_ficha_reclamacao(
+        rdc, listar_fotos(id), listar_acoes_corretivas(id), listar_produtos_defeituosos(id)
+    )
     nome_arquivo = f"RDC_{rdc[1]}.docx"
 
     return send_file(

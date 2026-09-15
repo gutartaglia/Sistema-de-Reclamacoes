@@ -867,6 +867,85 @@ td.data-cell {
     font-weight: normal;
 }
 
+.modal-card .produtos-defeituosos-linhas {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.modal-card .linha-produto-defeituoso {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-card .linha-produto-defeituoso .pd-check {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.modal-card .linha-produto-defeituoso input[type="text"],
+.modal-card .linha-produto-defeituoso input[type="number"] {
+    width: auto;
+    padding: 8px 10px;
+}
+
+.modal-card .linha-produto-defeituoso .pd-codigo {
+    flex: 0 0 130px;
+    min-width: 0;
+}
+
+.modal-card .linha-produto-defeituoso .pd-nome {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-card .linha-produto-defeituoso .pd-quantidade {
+    flex: 0 0 80px;
+}
+
+.modal-card .linha-produto-defeituoso input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.modal-card .pd-remover {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    background: #3a1f1f;
+    border: 1px solid #a33;
+    color: #ff9d9d;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+
+.modal-card .pd-remover:hover {
+    background: #4a2626;
+}
+
+.modal-card .btn-adicionar-produto {
+    width: auto;
+    background: transparent;
+    border: 1px dashed #333a47;
+    color: #9ca6b5;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.modal-card .btn-adicionar-produto:hover {
+    background: #1e222b;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
 .modal-card .btn-adicionar-email:hover {
     background: #1e222b;
     border-color: #2563eb;
@@ -1857,6 +1936,12 @@ td.data-cell {
             </div>
 
             <div class="form-group">
+                <label for="modal-nota_fiscal">Nota Fiscal</label>
+                <input type="text" id="modal-nota_fiscal" name="nota_fiscal">
+                <p class="dica">Ao sair do campo, o cliente e os produtos da nota são preenchidos automaticamente, se encontrados.</p>
+            </div>
+
+            <div class="form-group">
                 <label for="modal-cliente">Cliente</label>
                 <input type="text" id="modal-cliente" name="cliente" required>
             </div>
@@ -1893,11 +1978,6 @@ td.data-cell {
             </div>
 
             <div class="form-group">
-                <label for="modal-nota_fiscal">Nota Fiscal</label>
-                <input type="text" id="modal-nota_fiscal" name="nota_fiscal">
-            </div>
-
-            <div class="form-group">
                 <label for="modal-data">Data</label>
                 <input type="date" id="modal-data" name="data">
             </div>
@@ -1908,8 +1988,12 @@ td.data-cell {
             </div>
 
             <div class="form-group">
-                <label for="modal-quantidade_defeitos">Quantidade de defeitos</label>
-                <input type="text" id="modal-quantidade_defeitos" name="quantidade_defeitos" placeholder="Ex.: 5 rolos de NONTECK DRT30 150cm">
+                <label>Produtos defeituosos</label>
+                <div id="modal-produtos-defeituosos-linhas" class="produtos-defeituosos-linhas"></div>
+                <button type="button" id="modal-btn-adicionar-produto-defeituoso" class="btn-adicionar-produto">+ Adicionar produto</button>
+                <input type="hidden" id="modal-produtos-defeituosos-json" name="produtos_defeituosos_json">
+                <datalist id="modal-catalogo-produtos-datalist"></datalist>
+                <p class="dica">Marque os itens que tiveram defeito e ajuste a quantidade. Itens vindos da nota fiscal têm código e nome travados.</p>
             </div>
 
             <div class="form-group">
@@ -1969,6 +2053,7 @@ td.data-cell {
 <script>{{ MASCARAS_JS|safe }}</script>
 <script>{{ CHARTJS_JS|safe }}</script>
 <script>{{ CHARTJS_DATALABELS_JS|safe }}</script>
+<script>{{ PRODUTOS_DEFEITUOSOS_JS|safe }}</script>
 
 <script>
 
@@ -2050,11 +2135,22 @@ function alternarMarcacaoModal() {
     }
 }
 
+pdInicializar({
+    formSeletor: "#form-nova-rdc",
+    containerId: "modal-produtos-defeituosos-linhas",
+    botaoAdicionarId: "modal-btn-adicionar-produto-defeituoso",
+    hiddenInputId: "modal-produtos-defeituosos-json",
+    datalistId: "modal-catalogo-produtos-datalist",
+    catalogo: {{ CATALOGO_PRODUTOS_JSON|safe }},
+    itensIniciais: []
+});
+
 document.getElementById("form-nova-rdc").addEventListener("submit", function(evento) {
 
     evento.preventDefault();
 
     document.getElementById("modal-relato-input").value = document.getElementById("modal-relato-editor").innerHTML;
+    pdColetarESerializar();
 
     const erroDiv = document.getElementById("modal-erro");
     const botaoEnviar = document.getElementById("modal-btn-enviar");

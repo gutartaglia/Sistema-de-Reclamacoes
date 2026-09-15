@@ -144,6 +144,89 @@
         color: #ffffff;
     }
 
+    .produtos-defeituosos-linhas {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .linha-produto-defeituoso {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .linha-produto-defeituoso .pd-check {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        cursor: pointer;
+        accent-color: #2563eb;
+    }
+
+    .linha-produto-defeituoso input[type="text"],
+    .linha-produto-defeituoso input[type="number"] {
+        width: auto;
+        padding: 8px 10px;
+    }
+
+    .linha-produto-defeituoso .pd-codigo {
+        flex: 0 0 130px;
+        min-width: 0;
+    }
+
+    .linha-produto-defeituoso .pd-nome {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .linha-produto-defeituoso .pd-quantidade {
+        flex: 0 0 80px;
+    }
+
+    .linha-produto-defeituoso input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .pd-remover {
+        display: none;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        background: #3a1f1f;
+        border: 1px solid #a33;
+        color: #ff9d9d;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0;
+    }
+
+    .pd-remover:hover {
+        background: #4a2626;
+    }
+
+    .btn-adicionar-produto {
+        display: none;
+        width: auto;
+        background: transparent;
+        border: 1px dashed #555;
+        color: #9ca6b5;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: normal;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    .btn-adicionar-produto:hover {
+        background: #292929;
+        border-color: #2563eb;
+        color: #ffffff;
+    }
+
     /* BOTÕES */
 
     .botoes {
@@ -880,14 +963,11 @@
             </div>
 
             <div class="campo">
-                <label>Quantidade de defeitos</label>
-                <input
-                    type="text"
-                    name="quantidade_defeitos"
-                    class="valor"
-                    value="{{ rdc[13] }}"
-                    placeholder="Ex.: 5 rolos de NONTECK DRT30 150cm"
-                    disabled>
+                <label>Produtos defeituosos</label>
+                <div id="produtos-defeituosos-linhas" class="produtos-defeituosos-linhas"></div>
+                <button type="button" id="btn-adicionar-produto-defeituoso" class="btn-adicionar-produto">+ Adicionar produto</button>
+                <input type="hidden" id="produtos-defeituosos-json" name="produtos_defeituosos_json">
+                <datalist id="catalogo-produtos-datalist"></datalist>
             </div>
 
             <div class="campo">
@@ -1079,9 +1159,21 @@
 
 <script>{{ MASCARAS_JS|safe }}</script>
 <script>{{ LUCIDE_JS|safe }}</script>
+<script>{{ PRODUTOS_DEFEITUOSOS_JS|safe }}</script>
 
 <script>
     lucide.createIcons();
+
+    pdInicializar({
+        formSeletor: "#form-visualizar",
+        containerId: "produtos-defeituosos-linhas",
+        botaoAdicionarId: "btn-adicionar-produto-defeituoso",
+        hiddenInputId: "produtos-defeituosos-json",
+        datalistId: "catalogo-produtos-datalist",
+        catalogo: {{ CATALOGO_PRODUTOS_JSON|safe }},
+        itensIniciais: {{ produtos_defeituosos_json|safe }},
+        bloqueadaInicialmente: true
+    });
 
     function ativarEdicao() {
 
@@ -1108,6 +1200,8 @@
         document.querySelectorAll(".editor-btn").forEach(function(botao) {
             botao.disabled = false;
         });
+
+        pdDestravar();
 
         document.getElementById("btn-editar").style.display = "none";
         document.getElementById("btn-salvar").style.display = "inline-block";
@@ -1196,6 +1290,7 @@
 
     document.getElementById("form-visualizar").addEventListener("submit", function() {
         document.getElementById("relato-input").value = document.getElementById("relato-editor").innerHTML;
+        pdColetarESerializar();
     });
 
     function marcarRemocaoFoto(fotoId, botao) {

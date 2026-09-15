@@ -1,0 +1,208 @@
+// Componente compartilhado de "Produtos defeituosos" — tabela dinâmica usada nos
+// formulários de criação e nas telas de edição/visualização de uma RDC.
+// Cada página só tem UMA instância deste componente, então os elementos são
+// localizados por seletor (name=/id=) dentro do form informado em pdInicializar.
+
+var _pdEstado = null;
+
+function _pdCriarLinha(item, contexto) {
+    var origem = item.origem || "manual";
+    var ehBanco = origem === "banco";
+
+    var linha = document.createElement("div");
+    linha.className = "linha-produto-defeituoso";
+    linha.dataset.origem = origem;
+
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "pd-check";
+    checkbox.checked = ehBanco ? !!item.selecionado : true;
+    checkbox.disabled = !!contexto.bloqueada;
+    linha.appendChild(checkbox);
+
+    var campoCodigo = document.createElement("input");
+    campoCodigo.type = "text";
+    campoCodigo.className = "pd-codigo";
+    campoCodigo.placeholder = "Código";
+    campoCodigo.value = item.codigo || "";
+    campoCodigo.disabled = ehBanco ? true : !!contexto.bloqueada;
+    linha.appendChild(campoCodigo);
+
+    var campoNome = document.createElement("input");
+    campoNome.type = "text";
+    campoNome.className = "pd-nome";
+    campoNome.placeholder = "Nome do produto";
+    campoNome.value = item.descricao || "";
+    campoNome.disabled = ehBanco ? true : !!contexto.bloqueada;
+    if (!ehBanco && contexto.datalistId) {
+        campoNome.setAttribute("list", contexto.datalistId);
+        campoNome.addEventListener("input", function() {
+            var encontrado = (contexto.catalogo || []).filter(function(produto) {
+                return produto.descricao === campoNome.value;
+            })[0];
+            if (encontrado) campoCodigo.value = encontrado.codigo;
+        });
+    }
+    linha.appendChild(campoNome);
+
+    var campoQuantidade = document.createElement("input");
+    campoQuantidade.type = "number";
+    campoQuantidade.className = "pd-quantidade";
+    campoQuantidade.min = "0";
+    campoQuantidade.step = "1";
+    campoQuantidade.value = (item.quantidade === null || item.quantidade === undefined) ? "" : item.quantidade;
+    campoQuantidade.disabled = !!contexto.bloqueada;
+    if (ehBanco && item.maximo !== null && item.maximo !== undefined) {
+        campoQuantidade.max = String(item.maximo);
+        campoQuantidade.addEventListener("change", function() {
+            var maximo = Number(campoQuantidade.max);
+            if (maximo && Number(campoQuantidade.value) > maximo) {
+                campoQuantidade.value = String(maximo);
+            }
+        });
+    }
+    linha.appendChild(campoQuantidade);
+
+    var botaoRemover = document.createElement("button");
+    botaoRemover.type = "button";
+    botaoRemover.className = "pd-remover";
+    botaoRemover.title = "Remover produto";
+    botaoRemover.textContent = "×";
+    if (contexto.bloqueada) botaoRemover.style.display = "none";
+    botaoRemover.addEventListener("click", function() { linha.remove(); });
+    linha.appendChild(botaoRemover);
+
+    return linha;
+}
+
+function _pdColetarItens(container) {
+    var itens = [];
+    container.querySelectorAll(".linha-produto-defeituoso").forEach(function(linha) {
+        var checkbox = linha.querySelector(".pd-check");
+        if (!checkbox.checked) return;
+
+        var codigo = linha.querySelector(".pd-codigo").value.trim();
+        var descricao = linha.querySelector(".pd-nome").value.trim();
+        var quantidadeValor = linha.querySelector(".pd-quantidade").value;
+
+        if (!codigo && !descricao) return;
+
+        itens.push({
+            origem: linha.dataset.origem,
+            codigo: codigo,
+            descricao: descricao,
+            quantidade: quantidadeValor === "" ? 0 : Number(quantidadeValor)
+        });
+    });
+    return itens;
+}
+
+function _pdMontarDatalist(datalistId, catalogo) {
+    var datalist = document.getElementById(datalistId);
+    if (!datalist) return;
+
+    datalist.innerHTML = "";
+    (catalogo || []).forEach(function(produto) {
+        var opcao = document.createElement("option");
+        opcao.value = produto.descricao;
+        datalist.appendChild(opcao);
+    });
+}
+
+function pdInicializar(config) {
+    var form = document.querySelector(config.formSeletor);
+    var container = document.getElementById(config.containerId);
+    var hiddenInput = document.getElementById(config.hiddenInputId);
+    if (!form || !container || !hiddenInput) return;
+
+    var campoNotaFiscal = form.querySelector('[name="nota_fiscal"]');
+    var campoCliente = form.querySelector('[name="cliente"]');
+    var botaoAdicionar = document.getElementById(config.botaoAdicionarId);
+
+    var contexto = {
+        bloqueada: !!config.bloqueadaInicialmente,
+        catalogo: config.catalogo || [],
+        datalistId: config.datalistId
+    };
+
+    if (config.datalistId) _pdMontarDatalist(config.datalistId, config.catalogo);
+
+    // Itens iniciais vêm sempre de uma lista já persistida/confirmada (criação a
+    // partir da nota fiscal recém-buscada não passa por aqui), então começam marcados.
+    (config.itensIniciais || []).forEach(function(item) {
+        var itemConfirmado = Object.assign({}, item, { selecionado: true });
+        container.appendChild(_pdCriarLinha(itemConfirmado, contexto));
+    });
+
+    if (botaoAdicionar) {
+        botaoAdicionar.addEventListener("click", function() {
+            container.appendChild(_pdCriarLinha({ origem: "manual", quantidade: "" }, contexto));
+        });
+    }
+
+    if (campoNotaFiscal) {
+        var ultimaConsulta = null;
+
+        campoNotaFiscal.addEventListener("blur", function() {
+            var valor = campoNotaFiscal.value.trim();
+            if (!valor || valor === ultimaConsulta) return;
+            ultimaConsulta = valor;
+
+            fetch("/api/nota-fiscal/" + encodeURIComponent(valor))
+                .then(function(resposta) { return resposta.json(); })
+                .then(function(dados) {
+                    if (!dados || !dados.encontrado) return;
+
+                    if (campoCliente) campoCliente.value = dados.cliente || "";
+
+                    container.querySelectorAll('.linha-produto-defeituoso[data-origem="banco"]').forEach(function(linha) {
+                        linha.remove();
+                    });
+
+                    (dados.itens || []).slice().reverse().forEach(function(item) {
+                        var linha = _pdCriarLinha({
+                            origem: "banco",
+                            codigo: item.codigo,
+                            descricao: item.descricao,
+                            quantidade: item.quantidade,
+                            maximo: item.quantidade,
+                            selecionado: false
+                        }, contexto);
+                        container.insertBefore(linha, container.firstChild);
+                    });
+                })
+                .catch(function() {});
+        });
+    }
+
+    _pdEstado = { contexto: contexto, container: container, botaoAdicionar: botaoAdicionar, hiddenInput: hiddenInput };
+}
+
+// Chamado explicitamente pelo handler de submit de cada página, sempre ANTES de
+// ler o form (via FormData ou envio normal) — não usamos um listener de "submit"
+// interno aqui porque em alguns formulários o submit é interceptado e o FormData
+// é montado manualmente dentro do próprio handler da página; se essa serialização
+// rodasse num segundo listener, a ordem de execução entre eles não é garantida.
+function pdColetarESerializar() {
+    if (!_pdEstado) return;
+    _pdEstado.hiddenInput.value = JSON.stringify(_pdColetarItens(_pdEstado.container));
+}
+
+function pdDestravar() {
+    if (!_pdEstado) return;
+
+    _pdEstado.contexto.bloqueada = false;
+
+    _pdEstado.container.querySelectorAll(".linha-produto-defeituoso").forEach(function(linha) {
+        var ehBanco = linha.dataset.origem === "banco";
+        linha.querySelector(".pd-check").disabled = false;
+        linha.querySelector(".pd-codigo").disabled = ehBanco;
+        linha.querySelector(".pd-nome").disabled = ehBanco;
+        linha.querySelector(".pd-quantidade").disabled = false;
+        linha.querySelector(".pd-remover").style.display = "block";
+    });
+
+    if (_pdEstado.botaoAdicionar) {
+        _pdEstado.botaoAdicionar.style.display = "inline-block";
+    }
+}
