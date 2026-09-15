@@ -23,21 +23,19 @@ COR_TOTAL_FUNDO = "1F3864"
 COR_TOTAL_TEXTO = "FFFFFF"
 COR_BORDA = "D9D9D9"
 
-COR_LINHA_MENSAL = "0086D9"
-COR_INDICE = "16A34A"
-COR_RDC_ANO = "0086D9"
-COR_PARETO_BARRA = "2563EB"
-COR_PARETO_LINHA = "FF9100"
-COR_FILIAL = "06B6D4"
-COR_MATRIZ = "16A34A"
-COR_TOTAL_LINHA = "FF9100"
+# Escala monocromática 1 do Excel (tons de azul, derivados do Accent 1 do tema Office):
+# do mais claro ao mais escuro — DAE3F3, B4C7E7, 8EA9DB, 4472C4, 2E5395, 1F3864.
+# Único destaque fora da escala é o amarelo/dourado da linha de % acumulado do Pareto.
+COR_LINHA_MENSAL = "2E5395"
+COR_INDICE = "4472C4"
+COR_RDC_ANO = "1F3864"
+COR_PARETO_BARRA = "4472C4"
+COR_PARETO_LINHA = "FFC000"
+COR_FILIAL = "8EA9DB"
+COR_MATRIZ = "1F3864"
+COR_TOTAL_LINHA = "4472C4"
 
-PALETA_CAUSAS = [
-    "2563EB", "16A34A", "DC2626", "F59E0B", "8B5CF6", "06B6D4",
-    "EC4899", "84CC16", "F97316", "14B8A6", "A855F7", "EAB308",
-    "EF4444", "22C55E", "3B82F6", "D946EF", "0EA5E9", "FACC15",
-    "F43F5E", "10B981", "6366F1", "FB923C", "C026D3", "65A30D",
-]
+PALETA_CAUSAS = ["4472C4", "8EA9DB", "2E5395", "B4C7E7", "1F3864", "DAE3F3"]
 
 BORDA_FINA = Border(
     top=Side(style="thin", color=COR_BORDA),
@@ -66,11 +64,13 @@ def _posicionar_eixos(eixo_x, eixo_y, posicao_x="b", posicao_y="l"):
 
 def _remover_numeros_eixo(eixo_y):
     """Os valores já aparecem nos rótulos em cima das barras/linha, então os números
-    do eixo lateral ficam redundantes. Usamos um formato de número em branco (";;;")
+    do eixo lateral ficam redundantes. Usamos um formato de número em branco (;;;)
     em vez de eixo.delete=True: apagar o eixo também apaga o espaço que ele reserva,
     e o título do eixo e a legenda embaixo colam nas linhas de grade. Com o formato em
-    branco o eixo continua "existindo" (mantém o respiro do layout), só o texto some."""
-    eixo_y.numFmt = '";;;"'
+    branco o eixo continua "existindo" (mantém o respiro do layout), só o texto some.
+    Sem as aspas ao redor: com aspas o Excel exibe ";;;" literalmente; os 4 segmentos
+    vazios (positivo;negativo;zero;texto) é que fazem o valor não aparecer."""
+    eixo_y.numFmt = ';;;'
     eixo_y.delete = False
     eixo_y.majorGridlines = None
     eixo_y.minorGridlines = None
