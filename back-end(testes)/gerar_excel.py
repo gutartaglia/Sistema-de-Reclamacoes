@@ -89,12 +89,13 @@ def _remover_numeros_eixo(eixo_y):
     eixo_y.minorGridlines = None
 
 
-def _sem_contorno(grafico):
-    """Remove o contorno (borda) da área do gráfico e da área de plotagem, e garante
-    que nenhum eixo desenhe linhas de grade — evitando que rótulos de dados fiquem
-    sobrepostos a uma linha de grade."""
+def _moldura_grafico(grafico):
+    """Remove o contorno da área de plotagem e garante que nenhum eixo desenhe linhas
+    de grade — evitando que rótulos de dados fiquem sobrepostos a uma linha de grade —
+    e adiciona uma borda fina ao redor de toda a área do gráfico."""
     sem_linha = GraphicalProperties(ln=LineProperties(noFill=True))
-    grafico.graphical_properties = sem_linha
+    borda_grafico = GraphicalProperties(ln=LineProperties(solidFill=COR_BORDA, w=9525))
+    grafico.graphical_properties = borda_grafico
     grafico.plot_area.graphicalProperties = sem_linha
     for eixo in (grafico.x_axis, grafico.y_axis):
         eixo.majorGridlines = None
@@ -277,7 +278,7 @@ def _secao_mensal(wb, ws, linha_inicio, numero, mensal, cor_linha):
     _posicionar_eixos(grafico.x_axis, grafico.y_axis)
     _folga_eixo_y(grafico.y_axis, max(item["total"] for item in mensal))
     _remover_numeros_eixo(grafico.y_axis)
-    _sem_contorno(grafico)
+    _moldura_grafico(grafico)
     grafico.height = 7.5
     grafico.width = 16
     ws.add_chart(grafico, f"B{linha_resumo + 2}")
@@ -315,7 +316,7 @@ def _secao_indice(wb, ws, linha_inicio, numero, mensal, cor_barra):
     _posicionar_eixos(grafico.x_axis, grafico.y_axis)
     _folga_eixo_y(grafico.y_axis, max(item["indice"] for item in mensal))
     _remover_numeros_eixo(grafico.y_axis)
-    _sem_contorno(grafico)
+    _moldura_grafico(grafico)
     grafico.height = 7.5
     grafico.width = 16
     ws.add_chart(grafico, f"B{linha_resumo + 2}")
@@ -377,7 +378,7 @@ def _secao_causas_agrupadas(wb, ws, linha_inicio, numero, titulo, rotulo_categor
     _posicionar_eixos(grafico.x_axis, grafico.y_axis)
     _folga_eixo_y(grafico.y_axis, max(valor for linha in linhas for valor in linha[1:]))
     _remover_numeros_eixo(grafico.y_axis)
-    _sem_contorno(grafico)
+    _moldura_grafico(grafico)
 
     # Tamanho: a largura acompanha as categorias do eixo X (meses/anos), não a
     # quantidade de causas — isso evita gráficos gigantes quando há muitas causas.
@@ -449,7 +450,7 @@ def _secao_pareto(wb, ws, linha_inicio, numero, titulo, pareto):
     barras += linha_grafico
     barras.legend.position = "b"
     barras.legend.overlay = False
-    _sem_contorno(barras)
+    _moldura_grafico(barras)
     barras.height = 10
     barras.width = min(26, max(18, 14 + len(linhas) * 0.6))
     ws.add_chart(barras, f"B{linha_resumo + 2}")
@@ -483,7 +484,7 @@ def _secao_rdc_por_ano(wb, ws, linha_inicio, numero, titulo, rdc_por_ano, cor_ba
     _posicionar_eixos(grafico.x_axis, grafico.y_axis)
     _folga_eixo_y(grafico.y_axis, max(total for _, total in rdc_por_ano))
     _remover_numeros_eixo(grafico.y_axis)
-    _sem_contorno(grafico)
+    _moldura_grafico(grafico)
     grafico.height = 7.5
     grafico.width = 16
     ws.add_chart(grafico, f"B{linha_resumo + 2}")
@@ -536,7 +537,7 @@ def _secao_mensal_combinado(wb, ws, linha_inicio, numero, mensal):
     barras += linha_grafico
     barras.legend.position = "b"
     barras.legend.overlay = False
-    _sem_contorno(barras)
+    _moldura_grafico(barras)
     barras.height = 10
     barras.width = min(26, max(18, 14 + len(linhas) * 0.6))
     ws.add_chart(barras, f"B{linha_resumo + 2}")
@@ -548,6 +549,7 @@ def gerar_excel_unidade(nome_unidade, mensal, causas_lista, causas_tabela, paret
     wb = Workbook()
     ws = wb.active
     ws.title = "Dashboard"
+    ws.sheet_view.showGridLines = False
 
     num_colunas_titulo = max(len(causas_lista) + 2, 5)
     _titulo(ws, "Dashboard de Reclamações de Clientes", f"Indicadores de Qualidade — {nome_unidade}", num_colunas_titulo)
@@ -590,6 +592,7 @@ def gerar_excel_combinado(causas_top, causas_ano_tabela, pareto, rdc_por_ano, me
     wb = Workbook()
     ws = wb.active
     ws.title = "Dashboard"
+    ws.sheet_view.showGridLines = False
 
     num_colunas_titulo = max(len(causas_top) + 2, 5)
     _titulo(ws, "Dashboard de Reclamações de Clientes", "Consolidado de Indicadores de Qualidade — Filial + Matriz", num_colunas_titulo)
