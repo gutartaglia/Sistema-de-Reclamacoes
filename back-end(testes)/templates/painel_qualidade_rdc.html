@@ -154,11 +154,13 @@
 
     .linha-produto-defeituoso {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 8px;
     }
 
     .linha-produto-defeituoso .pd-check {
+        order: 1;
         width: 20px;
         height: 20px;
         flex-shrink: 0;
@@ -173,17 +175,20 @@
     }
 
     .linha-produto-defeituoso .pd-codigo {
+        order: 2;
         flex: 0 0 130px;
         min-width: 0;
     }
 
-    .linha-produto-defeituoso .pd-nome {
-        flex: 1;
-        min-width: 0;
+    .linha-produto-defeituoso .pd-quantidade {
+        order: 3;
+        flex: 0 0 80px;
     }
 
-    .linha-produto-defeituoso .pd-quantidade {
-        flex: 0 0 80px;
+    .linha-produto-defeituoso .pd-nome {
+        order: 5;
+        flex: 1 1 100%;
+        min-width: 0;
     }
 
     .linha-produto-defeituoso input:disabled {
@@ -192,6 +197,7 @@
     }
 
     .pd-remover {
+        order: 4;
         display: none;
         width: 32px;
         height: 32px;

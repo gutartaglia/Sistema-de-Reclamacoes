@@ -167,11 +167,13 @@
 
         .linha-produto-defeituoso {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 8px;
         }
 
         .linha-produto-defeituoso .pd-check {
+            order: 1;
             width: 20px;
             height: 20px;
             flex-shrink: 0;
@@ -186,17 +188,20 @@
         }
 
         .linha-produto-defeituoso .pd-codigo {
+            order: 2;
             flex: 0 0 130px;
             min-width: 0;
         }
 
-        .linha-produto-defeituoso .pd-nome {
-            flex: 1;
-            min-width: 0;
+        .linha-produto-defeituoso .pd-quantidade {
+            order: 3;
+            flex: 0 0 80px;
         }
 
-        .linha-produto-defeituoso .pd-quantidade {
-            flex: 0 0 80px;
+        .linha-produto-defeituoso .pd-nome {
+            order: 5;
+            flex: 1 1 100%;
+            min-width: 0;
         }
 
         .linha-produto-defeituoso input:disabled {
@@ -205,6 +210,7 @@
         }
 
         .pd-remover {
+            order: 4;
             width: 32px;
             height: 32px;
             flex-shrink: 0;
@@ -471,6 +477,7 @@
                     type="text"
                     id="nota_fiscal"
                     name="nota_fiscal"
+                    value="{{ dados.nota_fiscal if dados else '' }}"
                 >
                 <p class="dica">Ao sair do campo, o cliente e os produtos da nota são preenchidos automaticamente, se encontrados.</p>
             </div>
@@ -752,7 +759,7 @@
                 hiddenInputId: "produtos-defeituosos-json",
                 datalistId: "catalogo-produtos-datalist",
                 catalogo: {{ CATALOGO_PRODUTOS_JSON|safe }},
-                itensIniciais: []
+                itensIniciais: {{ ((dados.produtos_defeituosos_json if dados else '') or '[]')|safe }}
             });
         });
     </script>
