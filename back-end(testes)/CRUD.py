@@ -4,7 +4,7 @@ import mimetypes
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'exemplo.db')
+DB_PATH = os.environ.get("DATABASE_PATH") or os.path.join(BASE_DIR, 'exemplo.db')
 
 SETOR_SAC = "SAC"
 SETOR_QUALIDADE = "Qualidade"
