@@ -42,8 +42,8 @@ header span {
 
 /* Conteúdo */
 .container {
-    width: 95%;
-    max-width: 1400px;
+    width: 98%;
+    max-width: 1900px;
     margin: 40px auto;
 }
 
@@ -1483,7 +1483,13 @@ function toggleMenu(id, btn) {
         let left = rect.right - menu.offsetWidth;
         left = Math.max(10, Math.min(left, window.innerWidth - menu.offsetWidth - 10));
 
-        menu.style.top = (rect.bottom + 5) + 'px';
+        let top = rect.bottom + 5;
+        if (top + menu.offsetHeight > window.innerHeight - 10) {
+            top = rect.top - menu.offsetHeight - 5;
+        }
+        top = Math.max(10, top);
+
+        menu.style.top = top + 'px';
         menu.style.left = left + 'px';
     }
 }
