@@ -24,7 +24,7 @@ body {
 header {
     background: #171a21;
     border-bottom: 1px solid #292d36;
-    padding: 20px 40px;
+    padding: 20px 40px 20px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -40,10 +40,21 @@ header span {
     font-size: 14px;
 }
 
+.header-titulo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-cabecalho {
+    height: 60px;
+    width: auto;
+}
+
 /* Conteúdo */
 .container {
     width: 98%;
-    max-width: 1900px;
+    max-width: 2000px;
     margin: 40px auto;
 }
 
@@ -376,6 +387,7 @@ header span {
 table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
     min-width: 950px;
 }
 
@@ -388,13 +400,15 @@ thead {
 
 th {
     color: #9ca6b5;
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     text-align: left;
-    padding: 16px;
+    padding: 16px 10px;
     border: none;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: 1.3;
 }
 
 td {
@@ -550,6 +564,7 @@ td.data-cell {
 
 .percentual-cell {
     text-align: center;
+    max-width: 130px;
 }
 
 .badge-percentual {
@@ -1171,9 +1186,12 @@ td.data-cell {
 <body>
 
 <header>
-    <div>
-        <h1>Painel de Qualidade</h1>
-        <span>Ações corretivas por RDC</span>
+    <div class="header-titulo">
+        <img src="{{ url_for('static', filename='img/logo_santa_fe_transparente.png') }}" alt="Santa Fé" class="logo-cabecalho">
+        <div>
+            <h1>Painel de Qualidade</h1>
+            <span>Ações corretivas por RDC</span>
+        </div>
     </div>
     <div class="header-acoes">
         <span class="usuario-logado">{{ session.get('usuario_nome', '') }} · {{ session.get('usuario_setor', '') }}</span>
