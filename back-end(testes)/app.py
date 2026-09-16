@@ -607,7 +607,6 @@ def painel_qualidade():
     )
 
     unidades_combinado = [UNIDADE_FILIAL, UNIDADE_MATRIZ]
-    combinado_causas_top, combinado_causas_ano_tabela = montar_top_causas_por_ano(unidades_combinado, limite=4)
     combinado_pareto = montar_pareto_unidades(unidades_combinado)
     combinado_pareto_por_ano = montar_pareto_por_ano_unidades(unidades_combinado)
     combinado_rdc_por_ano = montar_rdc_por_ano_completo_unidades(unidades_combinado)
@@ -636,8 +635,6 @@ def painel_qualidade():
         matriz_pareto=matriz_pareto,
         matriz_pareto_por_ano=matriz_pareto_por_ano,
         matriz_anos_disponiveis=matriz_anos_disponiveis,
-        combinado_causas_top=combinado_causas_top,
-        combinado_causas_ano_tabela=combinado_causas_ano_tabela,
         combinado_pareto=combinado_pareto,
         combinado_pareto_por_ano=combinado_pareto_por_ano,
         combinado_rdc_por_ano=combinado_rdc_por_ano,

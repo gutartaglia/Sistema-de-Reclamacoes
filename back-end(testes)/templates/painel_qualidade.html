@@ -1758,9 +1758,12 @@ td.data-cell {
 
         <div data-dashboard-subaba-conteudo="combinado" hidden class="dashboard-painel">
 
+            {% set combinado_ano_padrao = combinado_anos_disponiveis[0] if combinado_anos_disponiveis else None %}
+            {% set combinado_causas_do_ano_padrao = combinado_pareto_por_ano.get(combinado_ano_padrao, [])[:4] if combinado_ano_padrao else [] %}
+
             <div class="dashboard-secao filtro-ano-secao">
                 <h3>Filtro de ano</h3>
-                <p class="dashboard-vazio">Filtra o Gráfico de Pareto e as Reclamações por Mês abaixo. Os gráficos anuais sempre mostram todos os anos.</p>
+                <p class="dashboard-vazio">Filtra o Gráfico de Pareto e as Reclamações por Mês abaixo. O gráfico de RDCs por Ano sempre mostra todos os anos. O gráfico de 4 Causas Principais por Ano tem seu próprio filtro, logo abaixo.</p>
                 <div class="filtro-ano-linha">
                     <select id="combinado-filtro-ano" class="select-filtro-ano" onchange="atualizarGraficosNaoAnuaisCombinado(this.value)">
                         <option value="todos">Todos os anos</option>
@@ -1774,7 +1777,16 @@ td.data-cell {
 
             <div class="dashboard-secao">
                 <h3>4 Causas Principais por Ano</h3>
-                {% if combinado_causas_top %}
+                {% if combinado_anos_disponiveis %}
+                <div class="filtro-ano-linha">
+                    <select id="combinado-filtro-ano-causas" class="select-filtro-ano" onchange="atualizarGraficoCombinadoCausasAno(this.value)">
+                        {% for ano in combinado_anos_disponiveis %}
+                        <option value="{{ ano }}" {% if ano == combinado_ano_padrao %}selected{% endif %}>{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                {% if combinado_causas_do_ano_padrao %}
                 <div class="dashboard-grafico-wrap dashboard-grafico-wrap-alto">
                     <canvas id="grafico-combinado-causas-ano"></canvas>
                 </div>
@@ -1785,24 +1797,20 @@ td.data-cell {
 
             <div class="dashboard-secao">
                 <h3>4 Causas Principais por Ano — tabela</h3>
-                {% if combinado_causas_top %}
+                {% if combinado_causas_do_ano_padrao %}
                 <div class="dashboard-tabela-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Ano</th>
-                                {% for causa in combinado_causas_top %}
-                                <th>{{ causa }}</th>
-                                {% endfor %}
+                                <th>Causa</th>
+                                <th>Ocorrências</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for linha in combinado_causas_ano_tabela %}
+                        <tbody id="tabela-combinado-causas-ano-corpo">
+                            {% for item in combinado_causas_do_ano_padrao %}
                             <tr>
-                                <td>{{ linha.ano }}</td>
-                                {% for valor in linha.valores %}
-                                <td>{{ valor }}</td>
-                                {% endfor %}
+                                <td>{{ item.causa }}</td>
+                                <td>{{ item.frequencia }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -2433,8 +2441,6 @@ const matrizCausasTabela = {{ matriz_causas_tabela|tojson }};
 const matrizParetoDados = {{ matriz_pareto|tojson }};
 const matrizParetoPorAno = {{ matriz_pareto_por_ano|tojson }};
 
-const combinadoCausasTop = {{ combinado_causas_top|tojson }};
-const combinadoCausasAnoTabela = {{ combinado_causas_ano_tabela|tojson }};
 const combinadoParetoDados = {{ combinado_pareto|tojson }};
 const combinadoParetoPorAno = {{ combinado_pareto_por_ano|tojson }};
 const combinadoRdcPorAno = {{ combinado_rdc_por_ano|tojson }};
@@ -2453,11 +2459,35 @@ function opcoesEixoPadrao(extra) {
     }, extra || {});
 }
 
+// Quebra um rótulo longo em várias linhas (o Chart.js desenha cada item de um
+// array de rótulo como uma linha), pra manter o texto horizontal em vez de
+// deixar o Chart.js girar o rótulo na diagonal quando ele não cabe na largura da coluna.
+function quebrarRotulo(texto, maxCaracteresPorLinha) {
+    maxCaracteresPorLinha = maxCaracteresPorLinha || 14;
+    const palavras = String(texto).split(" ");
+    const linhas = [];
+    let linhaAtual = "";
+
+    palavras.forEach(function(palavra) {
+        const candidata = linhaAtual ? (linhaAtual + " " + palavra) : palavra;
+        if (candidata.length > maxCaracteresPorLinha && linhaAtual) {
+            linhas.push(linhaAtual);
+            linhaAtual = palavra;
+        } else {
+            linhaAtual = candidata;
+        }
+    });
+
+    if (linhaAtual) linhas.push(linhaAtual);
+
+    return linhas;
+}
+
 function graficoPareto(idCanvas, dadosPareto) {
     return new Chart(document.getElementById(idCanvas), {
         plugins: [ChartDataLabels],
         data: {
-            labels: dadosPareto.map(function(item) { return item.causa; }),
+            labels: dadosPareto.map(function(item) { return quebrarRotulo(item.causa); }),
             datasets: [
                 {
                     type: "bar",
@@ -2503,7 +2533,7 @@ function graficoPareto(idCanvas, dadosPareto) {
             layout: { padding: { top: 8 } },
             plugins: { legend: { labels: { color: CORES_LEGENDA_DASHBOARD, padding: 28 } } },
             scales: {
-                x: opcoesEixoPadrao(),
+                x: opcoesEixoPadrao({ ticks: { color: CORES_EIXO_DASHBOARD, maxRotation: 0, minRotation: 0 } }),
                 y: opcoesEixoPadrao({ beginAtZero: true, ticks: { color: CORES_EIXO_DASHBOARD, precision: 0 } }),
                 y1: {
                     beginAtZero: true,
@@ -2651,33 +2681,23 @@ function inicializarDashboardMatriz() {
     });
 }
 
-function graficoCausasPorAno(idCanvas, causasTop, tabela) {
-    return graficoCausasAgrupadas(idCanvas, causasTop, tabela, "ano");
+function datalabelsBarraCausas() {
+    return {
+        display: function(contexto) {
+            return contexto.dataset.data[contexto.dataIndex] > 0;
+        },
+        color: "#f5f5f5",
+        anchor: "end",
+        align: "top",
+        offset: 1,
+        clamp: true,
+        font: { size: 10, weight: "bold" }
+    };
 }
 
-function graficoCausasAgrupadas(idCanvas, causasLista, tabela, campoLabel) {
-    if (!tabela.length) return null;
-
-    const labels = tabela.map(function(linha) { return linha[campoLabel]; });
-
-    const datasets = causasLista.map(function(causa, indice) {
-        return {
-            label: causa,
-            data: tabela.map(function(linha) { return linha.valores[indice]; }),
-            backgroundColor: corParaCausa(causa),
-            datalabels: {
-                display: function(contexto) {
-                    return contexto.dataset.data[contexto.dataIndex] > 0;
-                },
-                color: "#f5f5f5",
-                anchor: "end",
-                align: "top",
-                offset: 1,
-                clamp: true,
-                font: { size: 10, weight: "bold" }
-            }
-        };
-    });
+function criarGraficoBarrasCausas(idCanvas, labels, datasets, mostrarLegenda) {
+    if (!labels.length) return null;
+    if (mostrarLegenda === undefined) mostrarLegenda = true;
 
     const maiorValor = datasets.reduce(function(maior, ds) {
         return Math.max(maior, ds.data.reduce(function(m, v) { return Math.max(m, v || 0); }, 0));
@@ -2695,6 +2715,7 @@ function graficoCausasAgrupadas(idCanvas, causasLista, tabela, campoLabel) {
             layout: { padding: { top: 16 } },
             plugins: {
                 legend: {
+                    display: mostrarLegenda,
                     position: "top",
                     align: "start",
                     labels: { color: CORES_LEGENDA_DASHBOARD, boxWidth: 14, padding: 28 }
@@ -2710,6 +2731,47 @@ function graficoCausasAgrupadas(idCanvas, causasLista, tabela, campoLabel) {
             }
         }
     });
+}
+
+function graficoCausasAgrupadas(idCanvas, causasLista, tabela, campoLabel) {
+    if (!tabela.length) return null;
+
+    const labels = tabela.map(function(linha) { return linha[campoLabel]; });
+
+    const datasets = causasLista.map(function(causa, indice) {
+        return {
+            label: causa,
+            data: tabela.map(function(linha) { return linha.valores[indice]; }),
+            backgroundColor: corParaCausa(causa),
+            datalabels: datalabelsBarraCausas()
+        };
+    });
+
+    return criarGraficoBarrasCausas(idCanvas, labels, datasets);
+}
+
+// Composição do gráfico/tabela "4 Causas Principais por Ano" (Filial + Matriz):
+// esse widget tem filtro de ano próprio e usa o Pareto do ano selecionado (já
+// ordenado por frequência) pra pegar as 4 causas que mais aparecem NELE — nunca
+// reaproveita as 4 causas líderes somando todos os anos.
+function montarComposicaoCausasDoAno(ano) {
+    const causasAno = (combinadoParetoPorAno[ano] || []).slice(0, 4);
+    return {
+        causas: causasAno,
+        labels: causasAno.map(function(item) { return item.causa; }),
+        datasets: [{
+            label: ano,
+            data: causasAno.map(function(item) { return item.frequencia; }),
+            backgroundColor: causasAno.map(function(item) { return corParaCausa(item.causa); }),
+            datalabels: datalabelsBarraCausas()
+        }]
+    };
+}
+
+function graficoCausasDoAnoCombinado(idCanvas, ano) {
+    const composicao = montarComposicaoCausasDoAno(ano);
+    // Sem legenda: cada barra já é rotulada pelo próprio nome da causa no eixo X.
+    return criarGraficoBarrasCausas(idCanvas, composicao.labels, composicao.datasets, false);
 }
 
 function graficoMensalCombinado(idCanvas, dados) {
@@ -2760,12 +2822,16 @@ function graficoMensalCombinado(idCanvas, dados) {
 let dashboardCombinadoInicializado = false;
 let graficoComboParetoRef = null;
 let graficoComboMensalRef = null;
+let graficoComboCausasAnoRef = null;
 
 function inicializarDashboardCombinado() {
     if (dashboardCombinadoInicializado) return;
     dashboardCombinadoInicializado = true;
 
-    graficoCausasPorAno("grafico-combinado-causas-ano", combinadoCausasTop, combinadoCausasAnoTabela);
+    const seletorCausasAno = document.getElementById("combinado-filtro-ano-causas");
+    if (seletorCausasAno) {
+        graficoComboCausasAnoRef = graficoCausasDoAnoCombinado("grafico-combinado-causas-ano", seletorCausasAno.value);
+    }
 
     if (combinadoParetoDados.length > 0) {
         graficoComboParetoRef = graficoPareto("grafico-combinado-pareto", combinadoParetoDados);
@@ -2790,6 +2856,25 @@ function exportarDashboardExcel(aba) {
     window.location.href = "/painel-qualidade/exportar-excel/" + aba + "?ano=" + encodeURIComponent(ano);
 }
 
+// Filtro próprio do widget "4 Causas Principais por Ano": independente do
+// filtro de ano compartilhado acima, sempre mostra só o ano escolhido aqui.
+function atualizarGraficoCombinadoCausasAno(ano) {
+    const composicao = montarComposicaoCausasDoAno(ano);
+
+    if (graficoComboCausasAnoRef) {
+        graficoComboCausasAnoRef.data.labels = composicao.labels;
+        graficoComboCausasAnoRef.data.datasets = composicao.datasets;
+        graficoComboCausasAnoRef.update();
+    }
+
+    const corpoCausasAno = document.getElementById("tabela-combinado-causas-ano-corpo");
+    if (corpoCausasAno) {
+        corpoCausasAno.innerHTML = composicao.causas.map(function(item) {
+            return "<tr><td>" + escaparHtml(item.causa) + "</td><td>" + item.frequencia + "</td></tr>";
+        }).join("");
+    }
+}
+
 function atualizarGraficosNaoAnuaisCombinado(ano) {
     const paretoFiltrado = (ano === "todos") ? combinadoParetoDados : (combinadoParetoPorAno[ano] || []);
     const mensalFiltrado = (ano === "todos")
@@ -2797,7 +2882,7 @@ function atualizarGraficosNaoAnuaisCombinado(ano) {
         : combinadoMensalDados.filter(function(item) { return item.mes.indexOf(ano + "-") === 0; });
 
     if (graficoComboParetoRef) {
-        graficoComboParetoRef.data.labels = paretoFiltrado.map(function(item) { return item.causa; });
+        graficoComboParetoRef.data.labels = paretoFiltrado.map(function(item) { return quebrarRotulo(item.causa); });
         graficoComboParetoRef.data.datasets[0].data = paretoFiltrado.map(function(item) { return item.frequencia; });
         graficoComboParetoRef.data.datasets[0].backgroundColor = paretoFiltrado.map(function(item) { return corParaCausa(item.causa); });
         graficoComboParetoRef.data.datasets[1].data = paretoFiltrado.map(function(item) { return item.percentual_acumulado; });
@@ -2902,7 +2987,7 @@ function atualizarGraficosNaoAnuaisUnidade(prefixo, ano) {
     }
 
     if (cfg.refs.paretoChart) {
-        cfg.refs.paretoChart.data.labels = paretoFiltrado.map(function(item) { return item.causa; });
+        cfg.refs.paretoChart.data.labels = paretoFiltrado.map(function(item) { return quebrarRotulo(item.causa); });
         cfg.refs.paretoChart.data.datasets[0].data = paretoFiltrado.map(function(item) { return item.frequencia; });
         cfg.refs.paretoChart.data.datasets[0].backgroundColor = paretoFiltrado.map(function(item) { return corParaCausa(item.causa); });
         cfg.refs.paretoChart.data.datasets[1].data = paretoFiltrado.map(function(item) { return item.percentual_acumulado; });
