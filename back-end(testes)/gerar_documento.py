@@ -9,7 +9,6 @@ from docx.image.image import Image as ImagemDocx
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CAMINHO_MODELO = os.path.join(BASE_DIR, "modelo", "Ficha_Reclamacao_Modelo_Padrao_1.docx")
-PASTA_STATIC = os.path.join(BASE_DIR, "static")
 
 MARGEM_SEGURANCA_POLEGADAS = 0.3
 DPI_PADRAO = 96
@@ -151,9 +150,9 @@ def _preencher_ocorrencia_referencia(tabela, numero, cliente, preferencia_client
     _preencher_celula(tabela, 0, 0, [texto])
 
 
-def _largura_ajustada(caminho_absoluto, largura_maxima_polegadas, altura_maxima_polegadas):
+def _largura_ajustada(conteudo, largura_maxima_polegadas, altura_maxima_polegadas):
     try:
-        imagem = ImagemDocx.from_file(caminho_absoluto)
+        imagem = ImagemDocx.from_file(io.BytesIO(conteudo))
         dpi_horizontal = imagem.horz_dpi or DPI_PADRAO
         dpi_vertical = imagem.vert_dpi or DPI_PADRAO
         largura_nativa_polegadas = imagem.px_width / dpi_horizontal
@@ -183,8 +182,8 @@ def _altura_maxima_por_foto(secao, quantidade_fotos):
 
 def _inserir_fotos_investigacao(tabela, fotos, secao):
     fotos_validas = [
-        (id_foto, caminho) for id_foto, caminho in (fotos or [])
-        if os.path.exists(os.path.join(PASTA_STATIC, caminho))
+        (id_foto, conteudo) for id_foto, _nome_arquivo, _mime_type, conteudo in (fotos or [])
+        if conteudo
     ]
 
     if not fotos_validas:
@@ -202,9 +201,7 @@ def _inserir_fotos_investigacao(tabela, fotos, secao):
 
     primeira_foto = True
 
-    for _, caminho in fotos_validas:
-        caminho_absoluto = os.path.join(PASTA_STATIC, caminho)
-
+    for _, conteudo in fotos_validas:
         if primeira_foto:
             paragrafo = celula.paragraphs[0]
             _limpar_paragrafo(paragrafo)
@@ -213,8 +210,8 @@ def _inserir_fotos_investigacao(tabela, fotos, secao):
             paragrafo = celula.add_paragraph()
 
         try:
-            largura = _largura_ajustada(caminho_absoluto, largura_maxima, altura_maxima)
-            paragrafo.add_run().add_picture(caminho_absoluto, width=largura)
+            largura = _largura_ajustada(conteudo, largura_maxima, altura_maxima)
+            paragrafo.add_run().add_picture(io.BytesIO(conteudo), width=largura)
         except Exception:
             continue
 

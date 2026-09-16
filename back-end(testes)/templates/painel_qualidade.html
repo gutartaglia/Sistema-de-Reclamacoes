@@ -1277,7 +1277,7 @@ td.data-cell {
                             class="icone-fotos-wrap {{ 'clicavel' if tem_fotos else '' }}"
                             title="{{ ('Possui ' ~ rdc[19] ~ ' foto' ~ ('' if rdc[19] == 1 else 's') ~ ' anexada' ~ ('' if rdc[19] == 1 else 's')) if tem_fotos else 'Nenhuma foto anexada' }}"
                             {% if tem_fotos %}
-                            onclick="abrirVisualizador([{% for caminho in rdc[20].split(',') %}'{{ url_for('static', filename=caminho) }}'{{ ',' if not loop.last }}{% endfor %}])"
+                            onclick="abrirVisualizador([{% for foto_id in rdc[20].split(',') %}'{{ url_for('servir_foto', foto_id=foto_id) }}'{{ ',' if not loop.last }}{% endfor %}])"
                             {% endif %}>
 
                             <svg class="icone-camera {{ 'tem-fotos' if tem_fotos else 'sem-fotos' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

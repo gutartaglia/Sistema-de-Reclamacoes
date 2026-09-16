@@ -1138,7 +1138,7 @@ textarea.valor {
                 {% for foto in fotos %}
                 <div class="foto-item">
                     <img
-                        src="{{ url_for('static', filename=foto[1]) }}"
+                        src="{{ url_for('servir_foto', foto_id=foto[0]) }}"
                         alt="Foto anexada da RDC"
                         onclick="abrirVisualizador({{ loop.index0 }})">
                     <button
@@ -1488,7 +1488,7 @@ textarea.valor {
     }
 
     const fotosExistentesCount = {{ fotos|length }};
-    const fotosLista = [{% for foto in fotos %}"{{ url_for('static', filename=foto[1]) }}"{{ ',' if not loop.last }}{% endfor %}];
+    const fotosLista = [{% for foto in fotos %}"{{ url_for('servir_foto', foto_id=foto[0]) }}"{{ ',' if not loop.last }}{% endfor %}];
     let fotoAtual = 0;
 
     function abrirVisualizador(indice) {

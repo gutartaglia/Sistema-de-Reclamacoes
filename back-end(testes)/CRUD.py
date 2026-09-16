@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import mimetypes
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -11,6 +12,29 @@ def conectar():
     conexao = sqlite3.connect(DB_PATH)
     conexao.execute("PRAGMA foreign_keys = ON")
     return conexao
+
+def _migrar_fotos_legadas_para_blob(cursor):
+    """Lê anexos antigos salvos em static/uploads e copia o conteúdo para a
+    coluna BLOB, para que as fotos passem a viver só dentro do banco."""
+    pendentes = cursor.execute(
+        "SELECT id, caminho FROM fotos_anexos WHERE conteudo IS NULL AND caminho IS NOT NULL"
+    ).fetchall()
+
+    for foto_id, caminho in pendentes:
+        caminho_absoluto = os.path.join(BASE_DIR, 'static', caminho)
+        if not os.path.exists(caminho_absoluto):
+            continue
+
+        with open(caminho_absoluto, 'rb') as arquivo:
+            conteudo = arquivo.read()
+
+        nome_arquivo = os.path.basename(caminho)
+        mime_type = mimetypes.guess_type(nome_arquivo)[0] or 'application/octet-stream'
+
+        cursor.execute(
+            "UPDATE fotos_anexos SET conteudo = ?, nome_arquivo = ?, mime_type = ? WHERE id = ?",
+            (conteudo, nome_arquivo, mime_type, foto_id)
+        )
 
 def criar_tabela():
     conexao = conectar()
@@ -55,9 +79,23 @@ def criar_tabela():
     CREATE TABLE IF NOT EXISTS fotos_anexos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         rdc_id INTEGER NOT NULL,
-        caminho TEXT NOT NULL,
+        caminho TEXT,
+        nome_arquivo TEXT,
+        mime_type TEXT,
+        conteudo BLOB,
         FOREIGN KEY (rdc_id) REFERENCES rdcs(id) ON DELETE CASCADE
     )""")
+
+    colunas_fotos = [linha[1] for linha in cursor.execute("PRAGMA table_info(fotos_anexos)").fetchall()]
+    if "nome_arquivo" not in colunas_fotos:
+        cursor.execute("ALTER TABLE fotos_anexos ADD COLUMN nome_arquivo TEXT")
+    if "mime_type" not in colunas_fotos:
+        cursor.execute("ALTER TABLE fotos_anexos ADD COLUMN mime_type TEXT")
+    if "conteudo" not in colunas_fotos:
+        cursor.execute("ALTER TABLE fotos_anexos ADD COLUMN conteudo BLOB")
+
+    conexao.commit()
+    _migrar_fotos_legadas_para_blob(cursor)
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS usuarios (
@@ -176,7 +214,7 @@ def listar_RDC():
     conexao = conectar()
     cursor = conexao.cursor()
     cursor.execute("""
-    SELECT rdcs.*, COUNT(fotos_anexos.id), GROUP_CONCAT(fotos_anexos.caminho)
+    SELECT rdcs.*, COUNT(fotos_anexos.id), GROUP_CONCAT(fotos_anexos.id)
     FROM rdcs
     LEFT JOIN fotos_anexos ON fotos_anexos.rdc_id = rdcs.id
     GROUP BY rdcs.id
@@ -186,12 +224,12 @@ def listar_RDC():
     conexao.close()
     return rdcs
 
-def adicionar_foto(rdc_id, caminho):
+def adicionar_foto(rdc_id, nome_arquivo, mime_type, conteudo):
     conexao = conectar()
     cursor = conexao.cursor()
     cursor.execute(
-        "INSERT INTO fotos_anexos (rdc_id, caminho) VALUES (?, ?)",
-        (rdc_id, caminho)
+        "INSERT INTO fotos_anexos (rdc_id, nome_arquivo, mime_type, conteudo) VALUES (?, ?, ?, ?)",
+        (rdc_id, nome_arquivo, mime_type, conteudo)
     )
     conexao.commit()
     conexao.close()
@@ -199,7 +237,18 @@ def adicionar_foto(rdc_id, caminho):
 def listar_fotos(rdc_id):
     conexao = conectar()
     cursor = conexao.cursor()
-    cursor.execute("SELECT id, caminho FROM fotos_anexos WHERE rdc_id = ?", (rdc_id,))
+    cursor.execute("SELECT id, nome_arquivo FROM fotos_anexos WHERE rdc_id = ?", (rdc_id,))
+    fotos = cursor.fetchall()
+    conexao.close()
+    return fotos
+
+def listar_fotos_conteudo(rdc_id):
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute(
+        "SELECT id, nome_arquivo, mime_type, conteudo FROM fotos_anexos WHERE rdc_id = ?",
+        (rdc_id,)
+    )
     fotos = cursor.fetchall()
     conexao.close()
     return fotos
@@ -207,7 +256,10 @@ def listar_fotos(rdc_id):
 def buscar_foto(foto_id):
     conexao = conectar()
     cursor = conexao.cursor()
-    cursor.execute("SELECT rdc_id, caminho FROM fotos_anexos WHERE id = ?", (foto_id,))
+    cursor.execute(
+        "SELECT rdc_id, nome_arquivo, mime_type, conteudo FROM fotos_anexos WHERE id = ?",
+        (foto_id,)
+    )
     foto = cursor.fetchone()
     conexao.close()
     return foto
@@ -228,12 +280,6 @@ def buscar_RDC(id):
     return rdc
 
 def deletar_RDC(id):
-    fotos = listar_fotos(id)
-    for _, caminho in fotos:
-        caminho_absoluto = os.path.join(BASE_DIR, 'static', caminho)
-        if os.path.exists(caminho_absoluto):
-            os.remove(caminho_absoluto)
-
     conexao = conectar()
     try:
         cursor = conexao.cursor()
@@ -323,7 +369,7 @@ def listar_RDC_qualidade():
     cursor.execute("""
     SELECT rdcs.*,
            COUNT(DISTINCT fotos_anexos.id),
-           GROUP_CONCAT(DISTINCT fotos_anexos.caminho),
+           GROUP_CONCAT(DISTINCT fotos_anexos.id),
            COUNT(DISTINCT acoes_corretivas.id),
            COUNT(DISTINCT CASE WHEN acoes_corretivas.concluida = 1 THEN acoes_corretivas.id END)
     FROM rdcs

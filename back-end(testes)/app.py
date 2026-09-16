@@ -7,9 +7,10 @@ import bleach
 from functools import wraps
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file
+from werkzeug.utils import secure_filename
 from CRUD import (
     buscar_RDC, criar_tabela, adicionar_RDC, listar_RDC, deletar_RDC, editar_RDC,
-    adicionar_foto, listar_fotos, buscar_foto, remover_foto, autenticar_usuario,
+    adicionar_foto, listar_fotos, listar_fotos_conteudo, buscar_foto, remover_foto, autenticar_usuario,
     SETOR_PADRAO, listar_RDC_qualidade, adicionar_acao_corretiva, listar_acoes_corretivas,
     atualizar_acao_individual, editar_acao_corretiva, remover_acao_corretiva,
     listar_causas_distintas, contar_rdc_por_causa, contar_rdc_sem_causa, contar_rdc_por_ano,
@@ -24,8 +25,6 @@ from gerar_excel import gerar_excel_unidade, gerar_excel_combinado
 app = Flask(__name__)
 
 EXTENSOES_PERMITIDAS = {"png", "jpg", "jpeg", "gif", "webp"}
-PASTA_UPLOADS = os.path.join(app.root_path, "static", "uploads")
-os.makedirs(PASTA_UPLOADS, exist_ok=True)
 
 TAGS_RELATO_PERMITIDAS = ["b", "strong", "i", "em", "mark", "br", "p", "div"]
 
@@ -258,10 +257,10 @@ def salvar_anexos(rdc_id, arquivos):
         if not extensao_permitida(arquivo.filename):
             continue
 
-        extensao = arquivo.filename.rsplit(".", 1)[1].lower()
-        nome_unico = f"{uuid.uuid4().hex}.{extensao}"
-        arquivo.save(os.path.join(PASTA_UPLOADS, nome_unico))
-        adicionar_foto(rdc_id, f"uploads/{nome_unico}")
+        nome_arquivo = secure_filename(arquivo.filename) or f"{uuid.uuid4().hex}"
+        mime_type = arquivo.mimetype or "application/octet-stream"
+        conteudo = arquivo.read()
+        adicionar_foto(rdc_id, nome_arquivo, mime_type, conteudo)
 
 def anexos_validos(arquivos):
     return [a for a in arquivos if a and a.filename and extensao_permitida(a.filename)]
@@ -396,15 +395,6 @@ def processar_edicao_rdc(id):
         return False, erro, fotos_atuais
 
     for foto_id in ids_remover:
-        foto = buscar_foto(foto_id)
-        if foto is None:
-            continue
-
-        _, caminho = foto
-        caminho_absoluto = os.path.join(app.root_path, "static", caminho)
-        if os.path.exists(caminho_absoluto):
-            os.remove(caminho_absoluto)
-
         remover_foto(foto_id)
 
     salvar_anexos(id, validos)
@@ -534,6 +524,20 @@ def api_nota_fiscal(numero):
         return jsonify(encontrado=False)
 
     return jsonify(encontrado=True, cliente=resultado["cliente"], itens=resultado["itens"])
+
+@app.route("/foto/<foto_id>")
+@login_required
+def servir_foto(foto_id):
+    foto = buscar_foto(foto_id)
+    if foto is None or not foto[3]:
+        return "Foto não encontrada", 404
+
+    _, nome_arquivo, mime_type, conteudo = foto
+    return send_file(
+        io.BytesIO(conteudo),
+        mimetype=mime_type or "application/octet-stream",
+        download_name=nome_arquivo or "foto",
+    )
 
 @app.route("/lista")
 @login_required
@@ -804,7 +808,7 @@ def exportar_rdc(id):
         return "Rdc não encontrada", 404
 
     documento = gerar_ficha_reclamacao(
-        rdc, listar_fotos(id), listar_acoes_corretivas(id), listar_produtos_defeituosos(id)
+        rdc, listar_fotos_conteudo(id), listar_acoes_corretivas(id), listar_produtos_defeituosos(id)
     )
     nome_arquivo = f"RDC_{rdc[1]}.docx"
 
