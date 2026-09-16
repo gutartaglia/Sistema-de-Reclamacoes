@@ -6,7 +6,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'exemplo.db')
 
-SETOR_PADRAO = "Padrão"
+SETOR_SAC = "SAC"
+SETOR_QUALIDADE = "Qualidade"
+SETORES_VALIDOS = (SETOR_SAC, SETOR_QUALIDADE)
 
 def conectar():
     conexao = sqlite3.connect(DB_PATH)
@@ -102,10 +104,12 @@ def criar_tabela():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario TEXT NOT NULL,
         senha_hash TEXT NOT NULL,
-        setor TEXT NOT NULL DEFAULT 'Padrão'
+        setor TEXT NOT NULL DEFAULT 'SAC'
     )""")
 
     cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_usuario ON usuarios(usuario)")
+
+    cursor.execute("UPDATE usuarios SET setor = ? WHERE setor = 'Padrão'", (SETOR_QUALIDADE,))
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS acoes_corretivas (
@@ -322,7 +326,7 @@ def editar_RDC(id, numero, cliente, email, cpf_cnpj, telefone, endereco, cep, no
 
     return sucesso, erro
 
-def criar_usuario(usuario, senha, setor=SETOR_PADRAO):
+def criar_usuario(usuario, senha, setor=SETOR_SAC):
     conexao = conectar()
     cursor = conexao.cursor()
 

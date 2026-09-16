@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from CRUD import (
     buscar_RDC, criar_tabela, adicionar_RDC, listar_RDC, deletar_RDC, editar_RDC,
     adicionar_foto, listar_fotos, listar_fotos_conteudo, buscar_foto, remover_foto, autenticar_usuario,
-    SETOR_PADRAO, listar_RDC_qualidade, adicionar_acao_corretiva, listar_acoes_corretivas,
+    SETOR_QUALIDADE, listar_RDC_qualidade, adicionar_acao_corretiva, listar_acoes_corretivas,
     atualizar_acao_individual, editar_acao_corretiva, remover_acao_corretiva,
     listar_causas_distintas, contar_rdc_por_causa, contar_rdc_sem_causa, contar_rdc_por_ano,
     listar_reclamacoes_por_mes, listar_causas_por_mes, contar_causas_unidade,
@@ -584,7 +584,7 @@ def visualizar_rdc(id):
 
 @app.route("/painel-qualidade")
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def painel_qualidade():
     rdcs = listar_RDC_qualidade()
 
@@ -648,7 +648,7 @@ def painel_qualidade():
 
 @app.route("/painel-qualidade/exportar-excel/<aba>")
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def exportar_dashboard_excel(aba):
     ano = request.args.get("ano") or "todos"
 
@@ -710,7 +710,7 @@ def exportar_dashboard_excel(aba):
 
 @app.route("/painel-qualidade/<int:id>", methods=["GET", "POST"])
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def painel_qualidade_rdc(id):
 
     if request.method == "POST":
@@ -749,7 +749,7 @@ def painel_qualidade_rdc(id):
 
 @app.route("/painel-qualidade/<int:id>/deletar")
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def painel_qualidade_deletar_rdc(id):
     rdc = buscar_RDC(id)
 
@@ -762,7 +762,7 @@ def painel_qualidade_deletar_rdc(id):
 
 @app.route("/painel-qualidade/<int:rdc_id>/acao/<int:acao_id>/marcar", methods=["POST"])
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def marcar_acao(rdc_id, acao_id):
     concluida = 1 if request.form.get("concluida") == "1" else 0
     atualizar_acao_individual(acao_id, rdc_id, concluida)
@@ -770,7 +770,7 @@ def marcar_acao(rdc_id, acao_id):
 
 @app.route("/painel-qualidade/<int:rdc_id>/acao/adicionar", methods=["POST"])
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def adicionar_acao(rdc_id):
     titulo = (request.form.get("titulo") or "").strip()
     descricao = (request.form.get("descricao") or "").strip()
@@ -782,7 +782,7 @@ def adicionar_acao(rdc_id):
 
 @app.route("/painel-qualidade/<int:rdc_id>/acao/<int:acao_id>/editar", methods=["POST"])
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def editar_acao(rdc_id, acao_id):
     titulo = (request.form.get("titulo") or "").strip()
     descricao = (request.form.get("descricao") or "").strip()
@@ -794,7 +794,7 @@ def editar_acao(rdc_id, acao_id):
 
 @app.route("/painel-qualidade/<int:rdc_id>/acao/<int:acao_id>/excluir", methods=["POST"])
 @login_required
-@setor_required(SETOR_PADRAO)
+@setor_required(SETOR_QUALIDADE)
 def excluir_acao(rdc_id, acao_id):
     remover_acao_corretiva(acao_id, rdc_id)
     return redirect(url_for("painel_qualidade_rdc", id=rdc_id) + "#acoes")

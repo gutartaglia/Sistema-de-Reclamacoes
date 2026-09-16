@@ -918,7 +918,7 @@ td.data-cell {
     </div>
     <div class="header-acoes">
         <span class="usuario-logado">{{ session.get('usuario_nome', '') }} · {{ session.get('usuario_setor', '') }}</span>
-        {% if session.get('usuario_setor') == 'Padrão' %}
+        {% if session.get('usuario_setor') == 'Qualidade' %}
         <a href="{{ url_for('painel_qualidade') }}" class="btn btn-sair">Painel de Qualidade</a>
         {% endif %}
         <button type="button" class="btn" onclick="abrirModalFormulario()">+ Nova RDC</button>
