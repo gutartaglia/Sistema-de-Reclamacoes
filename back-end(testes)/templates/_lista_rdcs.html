@@ -33,14 +33,14 @@
     </div>
 
     {% set larguras = {
-        'numero': '5%',
+        'numero': '6%',
         'cliente': '9%' if lista_mostrar_acoes_corretivas else '10%',
         'email': '12%' if lista_mostrar_acoes_corretivas else '14%',
         'cpf_cnpj': '9%',
         'telefone': '8%',
-        'endereco': '17%' if lista_mostrar_acoes_corretivas else '20%',
+        'endereco': '15%' if lista_mostrar_acoes_corretivas else '18%',
         'cep': '5%',
-        'nota_fiscal': '5%',
+        'nota_fiscal': '7%',
         'data': '6%',
         'vendedor': '8%' if lista_mostrar_acoes_corretivas else '9%',
         'fotos': '4%',
@@ -53,14 +53,14 @@
 
             <thead>
                 <tr>
-                    <th style="width: {{ larguras.numero }}">Nº</th>
+                    <th class="id-cell" style="width: {{ larguras.numero }}">Nº</th>
                     <th style="width: {{ larguras.cliente }}">Cliente</th>
                     <th style="width: {{ larguras.email }}">Email</th>
                     <th style="width: {{ larguras.cpf_cnpj }}">CPF ou CNPJ</th>
                     <th style="width: {{ larguras.telefone }}">Telefone</th>
                     <th style="width: {{ larguras.endereco }}">Endereço</th>
                     <th style="width: {{ larguras.cep }}">CEP</th>
-                    <th style="width: {{ larguras.nota_fiscal }}">Nota Fiscal</th>
+                    <th class="nota-fiscal-cell" style="width: {{ larguras.nota_fiscal }}">Nota Fiscal</th>
                     <th style="width: {{ larguras.data }}">Data</th>
                     <th style="width: {{ larguras.vendedor }}">Vendedor</th>
                     <th style="width: {{ larguras.fotos }}">Fotos</th>
@@ -82,7 +82,7 @@
                     <td title="{{ rdc[5] }}">{{ rdc[5] }}</td>
                     <td title="{{ rdc[6] }}">{{ rdc[6] }}</td>
                     <td title="{{ rdc[7] }}">{{ rdc[7] }}</td>
-                    <td title="{{ rdc[8] }}">{{ rdc[8] }}</td>
+                    <td class="nota-fiscal-cell" title="{{ rdc[8] }}">{{ rdc[8] }}</td>
                     <td class="data-cell">{{ rdc[9][8:10] }}/{{ rdc[9][5:7] }}/{{ rdc[9][0:4] }}</td>
                     <td title="{{ rdc[10] }}">{{ rdc[10] }}</td>
 

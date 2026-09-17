@@ -439,11 +439,29 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 
+/* Nº da RDC e Nota Fiscal nunca podem ser cortados, em nenhuma resolução */
+th.id-cell,
+td.id-cell {
+    min-width: 60px;
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+th.nota-fiscal-cell,
+td.nota-fiscal-cell {
+    min-width: 95px;
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
 /* ID */
 td.id-cell {
     color: #6ea8fe;
     font-weight: bold;
-    white-space: nowrap;
 }
 
 /* Data */
@@ -535,6 +553,9 @@ td.data-cell {
 
 .fotos-cell {
     text-align: center;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
 }
 
 .icone-fotos-wrap {
@@ -1130,6 +1151,29 @@ td.data-cell {
 }
 
 /* Responsivo */
+
+/* Abaixo de 1920x1080 a lista volta a ter rolagem horizontal. O
+   min-width precisa ser maior que a largura que o .container atinge
+   em 1920px (98% ~ 1850px) para forçar a rolagem em telas menores;
+   950px não bastava porque até 1366px o container ainda é mais
+   largo que isso, então a tabela cabia sem precisar rolar.
+   As células voltam a truncar com "..." (com tooltip via atributo
+   title). O Nº da RDC e a Nota Fiscal nunca são cortados, graças
+   às regras th.id-cell/td.id-cell e th.nota-fiscal-cell/td.nota-fiscal-cell. */
+@media (max-width: 1919px) {
+    table {
+        table-layout: fixed;
+        min-width: 1850px;
+    }
+
+    td {
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
 @media (max-width: 700px) {
 
     header {
