@@ -856,24 +856,6 @@ td.data-cell {
     background: #2563eb;
 }
 
-.modal-card .checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.modal-card .checkbox-group input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-    accent-color: #2563eb;
-}
-
-.modal-card .checkbox-group label {
-    margin: 0;
-    cursor: pointer;
-}
-
 .modal-card .erro {
     background: #3a1f1f;
     border: 1px solid #a33;
@@ -1077,6 +1059,12 @@ td.data-cell {
     border-radius: 2px;
 }
 
+.modal-card .editor-btn.ativo {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
 .modal-card .editor-relato {
     min-height: 120px;
     padding: 11px;
@@ -1101,9 +1089,101 @@ td.data-cell {
     border-radius: 2px;
 }
 
+.modal-card .editor-relato mark[data-pendente] {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
 .modal-card .editor-relato:empty::before {
     content: "Escreva aqui o relato do cliente...";
     color: #888;
+}
+
+.modal-card .btn-selecionar-midia {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.modal-card .btn-selecionar-midia:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.modal-card .dropzone-midia {
+    border: 1px dashed #333a47;
+    border-radius: 6px;
+    padding: 22px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.modal-card .dropzone-midia.arrastando {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.modal-card .dropzone-midia-dica {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+}
+
+.modal-card .lista-midia {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-card .lista-midia-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #1e222b;
+    border: 1px solid #333a47;
+    border-radius: 5px;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #eeeeee;
+}
+
+.modal-card .lista-midia-nome {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modal-card .lista-midia-remover {
+    background: transparent;
+    border: none;
+    color: #ff6b6b;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.modal-card .lista-midia-remover:hover {
+    background: rgba(239, 68, 68, 0.15);
 }
 
 .menu-btn {
@@ -1983,9 +2063,9 @@ td.data-cell {
             <div class="form-group">
                 <label for="modal-relato-editor">Relato do Cliente</label>
                 <div class="editor-toolbar">
-                    <button type="button" class="editor-btn negrito" title="Negrito" onclick="aplicarFormatacaoRelatoModal('bold')">B</button>
+                    <button type="button" class="editor-btn negrito" title="Negrito" onclick="aplicarFormatacaoRelatoModal('bold', this)">B</button>
                     <button type="button" class="editor-btn italico" title="Itálico" onclick="aplicarFormatacaoRelatoModal('italic')">I</button>
-                    <button type="button" class="editor-btn marcador" title="Marcar" onclick="aplicarFormatacaoRelatoModal('mark')"><mark>M</mark></button>
+                    <button type="button" class="editor-btn marcador" title="Marcar" onclick="aplicarFormatacaoRelatoModal('mark', this)"><mark>M</mark></button>
                 </div>
                 <div id="modal-relato-editor" class="editor-relato" contenteditable="true"></div>
                 <input type="hidden" name="relato" id="modal-relato-input">
@@ -1993,18 +2073,20 @@ td.data-cell {
 
             <div class="form-group">
                 <label for="modal-anexos">Anexar fotos (opcional)</label>
-                <input
-                    type="file"
-                    id="modal-anexos"
-                    name="anexos"
-                    accept="image/png, image/jpeg, image/gif, image/webp"
-                    multiple
-                    onchange="document.getElementById('modal-fotos').checked = this.files.length > 0">
-            </div>
-
-            <div class="form-group checkbox-group">
-                <input type="checkbox" id="modal-fotos" onclick="return false;" tabindex="-1">
-                <label for="modal-fotos">Possui fotos?</label>
+                <button type="button" class="btn-selecionar-midia" onclick="document.getElementById('modal-anexos').click()">
+                    Escolher arquivos
+                </button>
+                <div class="dropzone-midia" id="modal-dropzone-anexos">
+                    <input
+                        type="file"
+                        id="modal-anexos"
+                        name="anexos"
+                        accept="image/png, image/jpeg, image/gif, image/webp"
+                        multiple
+                        hidden>
+                    <p class="dropzone-midia-dica">Cole ou arraste a imagem aqui</p>
+                </div>
+                <ul class="lista-midia" id="modal-lista-anexos"></ul>
             </div>
 
             <div class="form-group campo-causa-destaque">
@@ -2066,48 +2148,256 @@ function adicionarCampoEmailModal() {
     linha.querySelector("input").focus();
 }
 
-function aplicarFormatacaoRelatoModal(comando) {
+function aplicarFormatacaoRelatoModal(comando, botao) {
 
     const editor = document.getElementById("modal-relato-editor");
     editor.focus();
 
     if (comando === "mark") {
-        alternarMarcacaoModal();
+        alternarFormatacaoRelatoModal("mark", ["mark"], botao);
+    } else if (comando === "bold") {
+        alternarFormatacaoRelatoModal("b", ["b", "strong"], botao);
     } else {
         document.execCommand(comando, false, null);
     }
 }
 
-function alternarMarcacaoModal() {
+function alternarFormatacaoRelatoModal(tag, tagsExistentes, botao) {
 
     const selecao = window.getSelection();
-    if (!selecao.rangeCount || selecao.isCollapsed) return;
+    if (!selecao.rangeCount) return;
+
+    if (selecao.isCollapsed) {
+        alternarModoDigitacaoRelatoModal(tag, botao, selecao);
+        return;
+    }
 
     const range = selecao.getRangeAt(0);
     let noAncestral = range.commonAncestorContainer;
     if (noAncestral.nodeType === 3) noAncestral = noAncestral.parentNode;
 
-    const marcadorExistente = noAncestral.closest && noAncestral.closest("mark");
+    const elementoExistente = noAncestral.closest && noAncestral.closest(tagsExistentes.join(","));
 
-    if (marcadorExistente) {
-        const pai = marcadorExistente.parentNode;
-        while (marcadorExistente.firstChild) {
-            pai.insertBefore(marcadorExistente.firstChild, marcadorExistente);
+    if (elementoExistente) {
+        const pai = elementoExistente.parentNode;
+        while (elementoExistente.firstChild) {
+            pai.insertBefore(elementoExistente.firstChild, elementoExistente);
         }
-        pai.removeChild(marcadorExistente);
+        pai.removeChild(elementoExistente);
         return;
     }
 
     try {
-        const marcador = document.createElement("mark");
-        range.surroundContents(marcador);
+        const elemento = document.createElement(tag);
+        range.surroundContents(elemento);
     } catch (erro) {
         const conteudo = range.extractContents();
-        const marcador = document.createElement("mark");
-        marcador.appendChild(conteudo);
-        range.insertNode(marcador);
+        const elemento = document.createElement(tag);
+        elemento.appendChild(conteudo);
+        range.insertNode(elemento);
     }
 }
+
+function alternarModoDigitacaoRelatoModal(tag, botao, selecao) {
+
+    if (!botao) return;
+
+    const desligando = botao.dataset.pendente === "1";
+
+    if (tag === "b") {
+        document.execCommand("bold", false, null);
+    } else if (desligando) {
+        finalizarMarcadorPendenteRelatoModal(botao, selecao);
+    } else {
+        criarMarcadorPendenteRelatoModal(tag, botao, selecao);
+    }
+
+    if (desligando) {
+        botao.classList.remove("ativo");
+        botao.dataset.pendente = "";
+    } else {
+        botao.classList.add("ativo");
+        botao.dataset.pendente = "1";
+    }
+}
+
+function criarMarcadorPendenteRelatoModal(tag, botao, selecao) {
+
+    const range = selecao.getRangeAt(0);
+    const marcador = document.createElement(tag);
+    marcador.dataset.pendente = "1";
+    const zwsp = document.createTextNode("\u200B");
+    marcador.appendChild(zwsp);
+    range.insertNode(marcador);
+
+    const novoRange = document.createRange();
+    novoRange.setStart(zwsp, 1);
+    novoRange.collapse(true);
+    selecao.removeAllRanges();
+    selecao.addRange(novoRange);
+
+    botao._marcadorPendente = marcador;
+    botao._zwspPendente = zwsp;
+
+    const editor = document.getElementById("modal-relato-editor");
+    const confirmarAoDigitar = function() {
+        if (!marcador.parentNode) {
+            editor.removeEventListener("input", confirmarAoDigitar);
+            return;
+        }
+        if (marcador.textContent.length > 1) {
+            marcador.removeAttribute("data-pendente");
+            editor.removeEventListener("input", confirmarAoDigitar);
+        }
+    };
+    editor.addEventListener("input", confirmarAoDigitar);
+}
+
+function finalizarMarcadorPendenteRelatoModal(botao, selecao) {
+
+    const marcador = botao._marcadorPendente;
+    const zwsp = botao._zwspPendente;
+    botao._marcadorPendente = null;
+    botao._zwspPendente = null;
+
+    if (!marcador || !marcador.parentNode) return;
+
+    if (zwsp && zwsp.data.charAt(0) === "\u200B") {
+        zwsp.data = zwsp.data.slice(1);
+    }
+
+    const pai = marcador.parentNode;
+    const referencia = marcador.nextSibling;
+
+    if (marcador.textContent === "") {
+        pai.removeChild(marcador);
+    } else {
+        marcador.removeAttribute("data-pendente");
+    }
+
+    const ancora = document.createTextNode("\u200B");
+    pai.insertBefore(ancora, referencia);
+
+    const novoRange = document.createRange();
+    novoRange.setStart(ancora, 1);
+    novoRange.collapse(true);
+    selecao.removeAllRanges();
+    selecao.addRange(novoRange);
+}
+
+let modalAnexosSelecionados = [];
+
+function inicializarDropzoneAnexosModal() {
+
+    const input = document.getElementById("modal-anexos");
+    const dropzone = document.getElementById("modal-dropzone-anexos");
+
+    input.addEventListener("change", function() {
+        adicionarAnexosModal(Array.from(input.files));
+    });
+
+    dropzone.addEventListener("click", function() {
+        if (!input.disabled) input.click();
+    });
+
+    dropzone.addEventListener("dragover", function(evento) {
+        evento.preventDefault();
+        if (input.disabled) return;
+        dropzone.classList.add("arrastando");
+    });
+
+    dropzone.addEventListener("dragleave", function() {
+        dropzone.classList.remove("arrastando");
+    });
+
+    dropzone.addEventListener("drop", function(evento) {
+        evento.preventDefault();
+        dropzone.classList.remove("arrastando");
+        if (input.disabled) return;
+
+        const arquivos = Array.from(evento.dataTransfer.files).filter(function(arquivo) {
+            return arquivo.type.startsWith("image/");
+        });
+        adicionarAnexosModal(arquivos);
+    });
+
+    document.addEventListener("paste", function(evento) {
+        if (input.disabled) return;
+        if (document.getElementById("modal-formulario").hidden) return;
+
+        const itens = evento.clipboardData && evento.clipboardData.items;
+        if (!itens) return;
+
+        const arquivos = [];
+        for (let i = 0; i < itens.length; i++) {
+            if (itens[i].type && itens[i].type.startsWith("image/")) {
+                const arquivo = itens[i].getAsFile();
+                if (arquivo) arquivos.push(arquivo);
+            }
+        }
+
+        if (arquivos.length > 0) {
+            evento.preventDefault();
+            adicionarAnexosModal(arquivos);
+        }
+    });
+}
+
+function adicionarAnexosModal(novosArquivos) {
+    novosArquivos.forEach(function(arquivo) {
+        if (arquivo.type.startsWith("image/")) {
+            modalAnexosSelecionados.push(arquivo);
+        }
+    });
+    sincronizarAnexosModal();
+}
+
+function removerAnexoModal(indice) {
+    modalAnexosSelecionados.splice(indice, 1);
+    sincronizarAnexosModal();
+}
+
+function sincronizarAnexosModal() {
+
+    const input = document.getElementById("modal-anexos");
+    const transferencia = new DataTransfer();
+    modalAnexosSelecionados.forEach(function(arquivo) {
+        transferencia.items.add(arquivo);
+    });
+    input.files = transferencia.files;
+
+    renderizarListaAnexosModal();
+}
+
+function renderizarListaAnexosModal() {
+
+    const lista = document.getElementById("modal-lista-anexos");
+    lista.innerHTML = "";
+
+    modalAnexosSelecionados.forEach(function(arquivo, indice) {
+
+        const item = document.createElement("li");
+        item.className = "lista-midia-item";
+
+        const nome = document.createElement("span");
+        nome.className = "lista-midia-nome";
+        nome.textContent = arquivo.name;
+        nome.title = arquivo.name;
+
+        const botaoRemover = document.createElement("button");
+        botaoRemover.type = "button";
+        botaoRemover.className = "lista-midia-remover";
+        botaoRemover.title = "Remover";
+        botaoRemover.textContent = "×";
+        botaoRemover.onclick = function() { removerAnexoModal(indice); };
+
+        item.appendChild(nome);
+        item.appendChild(botaoRemover);
+        lista.appendChild(item);
+    });
+}
+
+inicializarDropzoneAnexosModal();
 
 pdInicializar({
     formSeletor: "#form-nova-rdc",
@@ -2123,7 +2413,9 @@ document.getElementById("form-nova-rdc").addEventListener("submit", function(eve
 
     evento.preventDefault();
 
-    document.getElementById("modal-relato-input").value = document.getElementById("modal-relato-editor").innerHTML;
+    document.getElementById("modal-relato-input").value = document.getElementById("modal-relato-editor").innerHTML
+        .replace(/\u200B/g, "")
+        .replace(/<(b|mark)(?:\s+data-pendente="1")?><\/\1>/g, "");
     pdColetarESerializar();
 
     const erroDiv = document.getElementById("modal-erro");

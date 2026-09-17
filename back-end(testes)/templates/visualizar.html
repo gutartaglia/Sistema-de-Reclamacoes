@@ -368,22 +368,6 @@
     font-size: 14px;
 }
 
-.campo.checkbox-campo {
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-}
-
-.campo.checkbox-campo input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #2563eb;
-}
-
-.campo.checkbox-campo label {
-    margin-bottom: 0;
-}
-
 .campo input[type="file"] {
     padding: 10px;
 }
@@ -466,6 +450,12 @@
     border-radius: 2px;
 }
 
+.editor-btn.ativo {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
 .editor-relato {
     min-height: 160px;
     padding: 12px;
@@ -491,9 +481,112 @@
     border-radius: 2px;
 }
 
+.editor-relato mark[data-pendente] {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
 .editor-relato:empty::before {
     content: "Nenhum relato registrado.";
     color: #777;
+}
+
+.btn-selecionar-midia {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.btn-selecionar-midia:hover:not(:disabled) {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-selecionar-midia:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.dropzone-midia {
+    border: 1px dashed #333a47;
+    border-radius: 6px;
+    padding: 22px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+}
+
+.dropzone-midia.arrastando {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.dropzone-midia.desabilitado {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.dropzone-midia-dica {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+}
+
+.lista-midia {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lista-midia-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #1e222b;
+    border: 1px solid #333a47;
+    border-radius: 5px;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #eeeeee;
+}
+
+.lista-midia-nome {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lista-midia-remover {
+    width: auto;
+    background: transparent;
+    border: none;
+    color: #ff6b6b;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.lista-midia-remover:hover {
+    background: rgba(239, 68, 68, 0.15);
 }
 
 .galeria-fotos {
@@ -1000,26 +1093,22 @@
 
             <div class="campo">
                 <label for="anexos">Anexar novas fotos</label>
-                <input
-                    type="file"
-                    id="anexos"
-                    name="anexos"
-                    class="valor"
-                    accept="image/png, image/jpeg, image/gif, image/webp"
-                    multiple
-                    disabled
-                    onchange="document.getElementById('fotos').checked = (fotosExistentesCount > 0) || (this.files.length > 0)">
-            </div>
-
-            <div class="campo checkbox-campo">
-                <input
-                    type="checkbox"
-                    id="fotos"
-                    {{ 'checked' if rdc[11] else '' }}
-                    disabled
-                    onclick="return false;"
-                    tabindex="-1">
-                <label for="fotos">Possui fotos?</label>
+                <button type="button" class="btn-selecionar-midia" id="btn-selecionar-anexos" disabled onclick="document.getElementById('anexos').click()">
+                    Escolher arquivos
+                </button>
+                <div class="dropzone-midia desabilitado" id="dropzone-anexos">
+                    <input
+                        type="file"
+                        id="anexos"
+                        name="anexos"
+                        class="valor"
+                        accept="image/png, image/jpeg, image/gif, image/webp"
+                        multiple
+                        disabled
+                        hidden>
+                    <p class="dropzone-midia-dica">Cole ou arraste a imagem aqui</p>
+                </div>
+                <ul class="lista-midia" id="lista-anexos"></ul>
             </div>
 
         </div>
@@ -1072,9 +1161,9 @@
         <div class="aba-conteudo" id="aba-relato">
 
             <div class="editor-toolbar">
-                <button type="button" class="editor-btn negrito" title="Negrito" disabled onclick="aplicarFormatacaoRelato('bold')">B</button>
+                <button type="button" class="editor-btn negrito" title="Negrito" disabled onclick="aplicarFormatacaoRelato('bold', this)">B</button>
                 <button type="button" class="editor-btn italico" title="Itálico" disabled onclick="aplicarFormatacaoRelato('italic')">I</button>
-                <button type="button" class="editor-btn marcador" title="Marcar" disabled onclick="aplicarFormatacaoRelato('mark')"><mark>M</mark></button>
+                <button type="button" class="editor-btn marcador" title="Marcar" disabled onclick="aplicarFormatacaoRelato('mark', this)"><mark>M</mark></button>
             </div>
 
             <div
@@ -1181,6 +1270,8 @@
         bloqueadaInicialmente: true
     });
 
+    inicializarDropzoneAnexos();
+
     function ativarEdicao() {
 
         const campos = document.querySelectorAll(".valor[name]");
@@ -1206,6 +1297,9 @@
         document.querySelectorAll(".editor-btn").forEach(function(botao) {
             botao.disabled = false;
         });
+
+        document.getElementById("dropzone-anexos").classList.remove("desabilitado");
+        document.getElementById("btn-selecionar-anexos").disabled = false;
 
         pdDestravar();
 
@@ -1251,51 +1345,147 @@
         }
     }
 
-    function aplicarFormatacaoRelato(comando) {
+    function aplicarFormatacaoRelato(comando, botao) {
 
         const editor = document.getElementById("relato-editor");
         editor.focus();
 
         if (comando === "mark") {
-            alternarMarcacao();
+            alternarFormatacaoRelato("mark", ["mark"], botao);
+        } else if (comando === "bold") {
+            alternarFormatacaoRelato("b", ["b", "strong"], botao);
         } else {
             document.execCommand(comando, false, null);
         }
     }
 
-    function alternarMarcacao() {
+    function alternarFormatacaoRelato(tag, tagsExistentes, botao) {
 
         const selecao = window.getSelection();
-        if (!selecao.rangeCount || selecao.isCollapsed) return;
+        if (!selecao.rangeCount) return;
+
+        if (selecao.isCollapsed) {
+            alternarModoDigitacaoRelato(tag, botao, selecao);
+            return;
+        }
 
         const range = selecao.getRangeAt(0);
         let noAncestral = range.commonAncestorContainer;
         if (noAncestral.nodeType === 3) noAncestral = noAncestral.parentNode;
 
-        const marcadorExistente = noAncestral.closest && noAncestral.closest("mark");
+        const elementoExistente = noAncestral.closest && noAncestral.closest(tagsExistentes.join(","));
 
-        if (marcadorExistente) {
-            const pai = marcadorExistente.parentNode;
-            while (marcadorExistente.firstChild) {
-                pai.insertBefore(marcadorExistente.firstChild, marcadorExistente);
+        if (elementoExistente) {
+            const pai = elementoExistente.parentNode;
+            while (elementoExistente.firstChild) {
+                pai.insertBefore(elementoExistente.firstChild, elementoExistente);
             }
-            pai.removeChild(marcadorExistente);
+            pai.removeChild(elementoExistente);
             return;
         }
 
         try {
-            const marcador = document.createElement("mark");
-            range.surroundContents(marcador);
+            const elemento = document.createElement(tag);
+            range.surroundContents(elemento);
         } catch (erro) {
             const conteudo = range.extractContents();
-            const marcador = document.createElement("mark");
-            marcador.appendChild(conteudo);
-            range.insertNode(marcador);
+            const elemento = document.createElement(tag);
+            elemento.appendChild(conteudo);
+            range.insertNode(elemento);
         }
     }
 
+    function alternarModoDigitacaoRelato(tag, botao, selecao) {
+
+        if (!botao) return;
+
+        const desligando = botao.dataset.pendente === "1";
+
+        if (tag === "b") {
+            document.execCommand("bold", false, null);
+        } else if (desligando) {
+            finalizarMarcadorPendenteRelato(botao, selecao);
+        } else {
+            criarMarcadorPendenteRelato(tag, botao, selecao);
+        }
+
+        if (desligando) {
+            botao.classList.remove("ativo");
+            botao.dataset.pendente = "";
+        } else {
+            botao.classList.add("ativo");
+            botao.dataset.pendente = "1";
+        }
+    }
+
+    function criarMarcadorPendenteRelato(tag, botao, selecao) {
+
+        const range = selecao.getRangeAt(0);
+        const marcador = document.createElement(tag);
+        marcador.dataset.pendente = "1";
+        const zwsp = document.createTextNode("\u200B");
+        marcador.appendChild(zwsp);
+        range.insertNode(marcador);
+
+        const novoRange = document.createRange();
+        novoRange.setStart(zwsp, 1);
+        novoRange.collapse(true);
+        selecao.removeAllRanges();
+        selecao.addRange(novoRange);
+
+        botao._marcadorPendente = marcador;
+        botao._zwspPendente = zwsp;
+
+        const editor = document.getElementById("relato-editor");
+        const confirmarAoDigitar = function() {
+            if (!marcador.parentNode) {
+                editor.removeEventListener("input", confirmarAoDigitar);
+                return;
+            }
+            if (marcador.textContent.length > 1) {
+                marcador.removeAttribute("data-pendente");
+                editor.removeEventListener("input", confirmarAoDigitar);
+            }
+        };
+        editor.addEventListener("input", confirmarAoDigitar);
+    }
+
+    function finalizarMarcadorPendenteRelato(botao, selecao) {
+
+        const marcador = botao._marcadorPendente;
+        const zwsp = botao._zwspPendente;
+        botao._marcadorPendente = null;
+        botao._zwspPendente = null;
+
+        if (!marcador || !marcador.parentNode) return;
+
+        if (zwsp && zwsp.data.charAt(0) === "\u200B") {
+            zwsp.data = zwsp.data.slice(1);
+        }
+
+        const pai = marcador.parentNode;
+        const referencia = marcador.nextSibling;
+
+        if (marcador.textContent === "") {
+            pai.removeChild(marcador);
+        } else {
+            marcador.removeAttribute("data-pendente");
+        }
+
+        const ancora = document.createTextNode("\u200B");
+        pai.insertBefore(ancora, referencia);
+
+        const novoRange = document.createRange();
+        novoRange.setStart(ancora, 1);
+        novoRange.collapse(true);
+        selecao.removeAllRanges();
+        selecao.addRange(novoRange);
+    }
+
     document.getElementById("form-visualizar").addEventListener("submit", function() {
-        document.getElementById("relato-input").value = document.getElementById("relato-editor").innerHTML;
+        document.getElementById("relato-input").value = document.getElementById("relato-editor").innerHTML
+            .replace(/\u200B/g, "")
+            .replace(/<(b|mark)(?:\s+data-pendente="1")?><\/\1>/g, "");
         pdColetarESerializar();
     });
 
@@ -1318,6 +1508,117 @@
     const fotosExistentesCount = {{ fotos|length }};
     const fotosLista = [{% for foto in fotos %}"{{ url_for('servir_foto', foto_id=foto[0]) }}"{{ ',' if not loop.last }}{% endfor %}];
     let fotoAtual = 0;
+
+    let anexosSelecionados = [];
+
+    function inicializarDropzoneAnexos() {
+
+        const input = document.getElementById("anexos");
+        const dropzone = document.getElementById("dropzone-anexos");
+
+        input.addEventListener("change", function() {
+            adicionarAnexos(Array.from(input.files));
+        });
+
+        dropzone.addEventListener("click", function() {
+            if (!input.disabled) input.click();
+        });
+
+        dropzone.addEventListener("dragover", function(evento) {
+            evento.preventDefault();
+            if (input.disabled) return;
+            dropzone.classList.add("arrastando");
+        });
+
+        dropzone.addEventListener("dragleave", function() {
+            dropzone.classList.remove("arrastando");
+        });
+
+        dropzone.addEventListener("drop", function(evento) {
+            evento.preventDefault();
+            dropzone.classList.remove("arrastando");
+            if (input.disabled) return;
+
+            const arquivos = Array.from(evento.dataTransfer.files).filter(function(arquivo) {
+                return arquivo.type.startsWith("image/");
+            });
+            adicionarAnexos(arquivos);
+        });
+
+        document.addEventListener("paste", function(evento) {
+            if (input.disabled) return;
+
+            const itens = evento.clipboardData && evento.clipboardData.items;
+            if (!itens) return;
+
+            const arquivos = [];
+            for (let i = 0; i < itens.length; i++) {
+                if (itens[i].type && itens[i].type.startsWith("image/")) {
+                    const arquivo = itens[i].getAsFile();
+                    if (arquivo) arquivos.push(arquivo);
+                }
+            }
+
+            if (arquivos.length > 0) {
+                evento.preventDefault();
+                adicionarAnexos(arquivos);
+            }
+        });
+    }
+
+    function adicionarAnexos(novosArquivos) {
+        novosArquivos.forEach(function(arquivo) {
+            if (arquivo.type.startsWith("image/")) {
+                anexosSelecionados.push(arquivo);
+            }
+        });
+        sincronizarAnexos();
+    }
+
+    function removerAnexo(indice) {
+        anexosSelecionados.splice(indice, 1);
+        sincronizarAnexos();
+    }
+
+    function sincronizarAnexos() {
+
+        const input = document.getElementById("anexos");
+        const transferencia = new DataTransfer();
+        anexosSelecionados.forEach(function(arquivo) {
+            transferencia.items.add(arquivo);
+        });
+        input.files = transferencia.files;
+
+        renderizarListaAnexos();
+    }
+
+    function renderizarListaAnexos() {
+
+        const lista = document.getElementById("lista-anexos");
+        lista.innerHTML = "";
+
+        anexosSelecionados.forEach(function(arquivo, indice) {
+
+            const item = document.createElement("li");
+            item.className = "lista-midia-item";
+
+            const nome = document.createElement("span");
+            nome.className = "lista-midia-nome";
+            nome.textContent = arquivo.name;
+            nome.title = arquivo.name;
+
+            const botaoRemover = document.createElement("button");
+            botaoRemover.type = "button";
+            botaoRemover.className = "lista-midia-remover";
+            botaoRemover.title = "Remover";
+            botaoRemover.textContent = "×";
+            botaoRemover.onclick = function() { removerAnexo(indice); };
+
+            item.appendChild(nome);
+            item.appendChild(botaoRemover);
+            lista.appendChild(item);
+        });
+    }
 
     function abrirVisualizador(indice) {
 
