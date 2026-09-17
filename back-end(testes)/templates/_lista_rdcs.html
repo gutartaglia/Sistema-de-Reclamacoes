@@ -32,42 +32,26 @@
         </div>
     </div>
 
-    {% set larguras = {
-        'numero': '5%',
-        'cliente': '9%' if lista_mostrar_acoes_corretivas else '10%',
-        'email': '12%' if lista_mostrar_acoes_corretivas else '14%',
-        'cpf_cnpj': '9%',
-        'telefone': '8%',
-        'endereco': '17%' if lista_mostrar_acoes_corretivas else '20%',
-        'cep': '5%',
-        'nota_fiscal': '5%',
-        'data': '6%',
-        'vendedor': '8%' if lista_mostrar_acoes_corretivas else '9%',
-        'fotos': '4%',
-        'acoes_corretivas': '7%',
-        'ferramentas': '5%'
-    } %}
-
     <div class="table-container">
         <table>
 
             <thead>
                 <tr>
-                    <th style="width: {{ larguras.numero }}">Nº</th>
-                    <th style="width: {{ larguras.cliente }}">Cliente</th>
-                    <th style="width: {{ larguras.email }}">Email</th>
-                    <th style="width: {{ larguras.cpf_cnpj }}">CPF ou CNPJ</th>
-                    <th style="width: {{ larguras.telefone }}">Telefone</th>
-                    <th style="width: {{ larguras.endereco }}">Endereço</th>
-                    <th style="width: {{ larguras.cep }}">CEP</th>
-                    <th style="width: {{ larguras.nota_fiscal }}">Nota Fiscal</th>
-                    <th style="width: {{ larguras.data }}">Data</th>
-                    <th style="width: {{ larguras.vendedor }}">Vendedor</th>
-                    <th style="width: {{ larguras.fotos }}">Fotos</th>
+                    <th>Nº</th>
+                    <th>Cliente</th>
+                    <th>Email</th>
+                    <th>CPF ou CNPJ</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>CEP</th>
+                    <th>Nota Fiscal</th>
+                    <th>Data</th>
+                    <th>Vendedor</th>
+                    <th>Fotos</th>
                     {% if lista_mostrar_acoes_corretivas %}
-                    <th style="width: {{ larguras.acoes_corretivas }}">Ações Corretivas</th>
+                    <th>Ações Corretivas</th>
                     {% endif %}
-                    <th style="width: {{ larguras.ferramentas }}">Ferramentas</th>
+                    <th>Ferramentas</th>
                 </tr>
             </thead>
 
