@@ -211,7 +211,7 @@ def injetar_scripts_inline():
         CATALOGO_PRODUTOS_JSON=CATALOGO_PRODUTOS_JSON
     )
 
-CHAVE_SECRETA_PATH = os.environ.get("SECRET_KEY_PATH") or os.path.join(app.root_path, ".secret_key")
+CHAVE_SECRETA_PATH = os.path.join(app.root_path, ".secret_key")
 if os.path.exists(CHAVE_SECRETA_PATH):
     with open(CHAVE_SECRETA_PATH, "r") as arquivo_chave:
         app.secret_key = arquivo_chave.read().strip()
