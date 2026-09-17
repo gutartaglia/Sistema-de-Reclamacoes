@@ -121,32 +121,6 @@ def montar_rdc_por_ano_completo():
             dados[ano] = total
     return sorted(dados.items())
 
-def montar_top_causas_por_ano(unidades, limite=4):
-    causas_top = [causa for causa, _ in contar_causas_unidades(unidades)[:limite]]
-
-    linhas = listar_causas_por_ano_unidades(unidades)
-    anos = []
-    matriz = {}
-
-    for ano, causa, total in linhas:
-        if causa not in causas_top:
-            continue
-        if ano not in anos:
-            anos.append(ano)
-        matriz[(ano, causa)] = total
-
-    anos.sort()
-
-    tabela = [
-        {
-            "ano": ano,
-            "valores": [matriz.get((ano, causa), 0) for causa in causas_top]
-        }
-        for ano in anos
-    ]
-
-    return causas_top, tabela
-
 def montar_rdc_por_ano_completo_unidades(unidades):
     dados = dict(HISTORICO_RDC_POR_ANO)
     for ano, total in contar_rdc_por_ano_unidades(unidades):
@@ -678,9 +652,26 @@ def exportar_dashboard_excel(aba):
         )
     else:
         unidades = [UNIDADE_FILIAL, UNIDADE_MATRIZ]
-        causas_top, causas_ano_tabela = montar_top_causas_por_ano(unidades, limite=4)
         pareto_por_ano = montar_pareto_por_ano_unidades(unidades)
         mensal = montar_mensal_combinado()
+
+        # O widget "4 Causas Principais por Ano" tem filtro de ano próprio,
+        # independente do filtro principal acima — usa as 4 causas mais
+        # frequentes DENTRO do ano escolhido (nunca soma anos diferentes),
+        # igual ao gráfico exibido na tela.
+        ano_causas = request.args.get("ano_causas")
+        if not ano_causas or ano_causas not in pareto_por_ano:
+            anos_disponiveis_causas = sorted(
+                set(pareto_por_ano.keys()) | {item["mes"][:4] for item in mensal}
+            )
+            ano_causas = anos_disponiveis_causas[0] if anos_disponiveis_causas else None
+
+        causas_do_ano = pareto_por_ano.get(ano_causas, [])[:4] if ano_causas else []
+        causas_top = [item["causa"] for item in causas_do_ano]
+        causas_ano_tabela = (
+            [{"ano": ano_causas, "valores": [item["frequencia"] for item in causas_do_ano]}]
+            if causas_do_ano else []
+        )
 
         if ano != "todos":
             mensal = [item for item in mensal if item["mes"].startswith(ano)]

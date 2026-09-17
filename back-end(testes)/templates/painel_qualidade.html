@@ -320,7 +320,11 @@ header span {
     text-align: left;
     padding: 12px 14px;
     background: #1e222b;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    vertical-align: bottom;
+    line-height: 1.3;
 }
 
 .dashboard-tabela-container td {
@@ -726,8 +730,8 @@ td.data-cell {
 }
 
 .modal-card {
-    width: 100%;
-    max-width: 560px;
+    width: 96%;
+    max-width: 1400px;
     background: #171a21;
     border: 1px solid #292d36;
     border-radius: 12px;
@@ -767,6 +771,53 @@ td.data-cell {
     margin-bottom: 16px;
 }
 
+.modal-card .abas {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid #292d36;
+    flex-wrap: wrap;
+}
+
+.modal-card .aba-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #9ca6b5;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    width: auto;
+}
+
+.modal-card .aba-btn:hover {
+    color: #dddddd;
+}
+
+.modal-card .aba-btn.ativa {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+.modal-card .aba-conteudo {
+    display: none;
+}
+
+.modal-card .aba-conteudo.ativa {
+    display: block;
+}
+
+.modal-card .form-linha-dupla {
+    display: flex;
+    gap: 16px;
+}
+
+.modal-card .form-linha-dupla .form-group {
+    flex: 1;
+    min-width: 0;
+}
+
 .modal-card label {
     display: block;
     margin-bottom: 6px;
@@ -795,7 +846,7 @@ td.data-cell {
     margin-top: 22px;
     padding: 18px;
     background: rgba(255, 145, 0, 0.08);
-    border: 2px solid #ff9100;
+    border: 1px solid rgba(255, 145, 0, 0.4);
     border-radius: 8px;
 }
 
@@ -1255,6 +1306,11 @@ td.data-cell {
 }
 
 @media (max-width: 700px) {
+
+    .modal-card .form-linha-dupla {
+        flex-direction: column;
+        gap: 0;
+    }
 
     header {
         padding: 18px 20px;
@@ -1970,6 +2026,14 @@ td.data-cell {
 
         <form id="form-nova-rdc" enctype="multipart/form-data">
 
+            <div class="abas">
+                <button type="button" class="aba-btn ativa" data-aba="dados" onclick="mostrarAbaModal('dados')">Dados do Cliente</button>
+                <button type="button" class="aba-btn" data-aba="produtos" onclick="mostrarAbaModal('produtos')">Produtos e Relato</button>
+                <button type="button" class="aba-btn" data-aba="causa" onclick="mostrarAbaModal('causa')">Causa Principal</button>
+            </div>
+
+            <div class="aba-conteudo ativa" data-aba="dados">
+
             <div class="form-group">
                 <label>Unidade</label>
                 <div class="radio-group-unidade">
@@ -1984,15 +2048,16 @@ td.data-cell {
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="modal-numero">Nº</label>
-                <input type="text" id="modal-numero" name="numero" required>
-            </div>
+            <div class="form-linha-dupla">
+                <div class="form-group">
+                    <label for="modal-numero">Nº</label>
+                    <input type="text" id="modal-numero" name="numero" required>
+                </div>
 
-            <div class="form-group">
-                <label for="modal-nota_fiscal">Nota Fiscal</label>
-                <input type="text" id="modal-nota_fiscal" name="nota_fiscal">
-                <p class="dica">Ao sair do campo, o cliente e os produtos da nota são preenchidos automaticamente, se encontrados.</p>
+                <div class="form-group">
+                    <label for="modal-nota_fiscal">Nota Fiscal</label>
+                    <input type="text" id="modal-nota_fiscal" name="nota_fiscal">
+                </div>
             </div>
 
             <div class="form-group">
@@ -2010,16 +2075,18 @@ td.data-cell {
                 <button type="button" class="btn-adicionar-email" onclick="adicionarCampoEmailModal()">+ Adicionar e-mail</button>
             </div>
 
-            <div class="form-group">
-                <label for="modal-cpf_cnpj">CPF ou CNPJ</label>
-                <input type="text" id="modal-cpf_cnpj" name="cpf_cnpj" maxlength="18" placeholder="000.000.000-00" required>
-            </div>
+            <div class="form-linha-dupla">
+                <div class="form-group">
+                    <label for="modal-cpf_cnpj">CPF ou CNPJ</label>
+                    <input type="text" id="modal-cpf_cnpj" name="cpf_cnpj" maxlength="18" placeholder="000.000.000-00" required>
+                </div>
 
-            <div class="form-group">
-                <label for="modal-telefone">Telefone</label>
-                <input type="tel" id="modal-telefone" name="telefone" maxlength="15" placeholder="(00) 00000-0000">
-                <p class="dica">Informe pelo menos um e-mail ou telefone.</p>
+                <div class="form-group">
+                    <label for="modal-telefone">Telefone</label>
+                    <input type="tel" id="modal-telefone" name="telefone" maxlength="15" placeholder="(00) 00000-0000">
+                </div>
             </div>
+            <p class="dica">Informe pelo menos um e-mail ou telefone.</p>
 
             <div class="form-group">
                 <label for="modal-endereco">Endereço</label>
@@ -2040,6 +2107,10 @@ td.data-cell {
                 <label for="modal-vendedor">Vendedor</label>
                 <input type="text" id="modal-vendedor" name="vendedor">
             </div>
+
+            </div>
+
+            <div class="aba-conteudo" data-aba="produtos">
 
             <div class="form-group">
                 <label>Produtos defeituosos</label>
@@ -2089,6 +2160,10 @@ td.data-cell {
                 <ul class="lista-midia" id="modal-lista-anexos"></ul>
             </div>
 
+            </div>
+
+            <div class="aba-conteudo" data-aba="causa">
+
             <div class="form-group campo-causa-destaque">
                 <label for="modal-causa_principal">Causa Principal</label>
                 <input type="text" id="modal-causa_principal" name="causa_principal" list="modal-lista-causas-datalist" placeholder="Causa principal da reclamação">
@@ -2097,6 +2172,8 @@ td.data-cell {
                     <option value="{{ causa }}">
                     {% endfor %}
                 </datalist>
+            </div>
+
             </div>
 
             <button type="submit" id="modal-btn-enviar">Enviar</button>
@@ -2115,6 +2192,16 @@ td.data-cell {
 
 function abrirModalFormulario() {
     document.getElementById("modal-formulario").hidden = false;
+    mostrarAbaModal("dados");
+}
+
+function mostrarAbaModal(nome) {
+    document.querySelectorAll("#form-nova-rdc .aba-btn").forEach(function(botao) {
+        botao.classList.toggle("ativa", botao.dataset.aba === nome);
+    });
+    document.querySelectorAll("#form-nova-rdc .aba-conteudo").forEach(function(conteudo) {
+        conteudo.classList.toggle("ativa", conteudo.dataset.aba === nome);
+    });
 }
 
 function fecharModalFormulario() {
@@ -2408,6 +2495,13 @@ pdInicializar({
     catalogo: {{ CATALOGO_PRODUTOS_JSON|safe }},
     itensIniciais: []
 });
+
+document.getElementById("form-nova-rdc").addEventListener("invalid", function(evento) {
+    const abaConteudo = evento.target.closest(".aba-conteudo");
+    if (abaConteudo && !abaConteudo.classList.contains("ativa")) {
+        mostrarAbaModal(abaConteudo.dataset.aba);
+    }
+}, true);
 
 document.getElementById("form-nova-rdc").addEventListener("submit", function(evento) {
 
@@ -2705,6 +2799,7 @@ function graficoPareto(idCanvas, dadosPareto) {
                     yAxisID: "y",
                     order: 2,
                     datalabels: {
+                        display: "auto",
                         color: "#f5f5f5",
                         anchor: "end",
                         align: "top",
@@ -2724,6 +2819,7 @@ function graficoPareto(idCanvas, dadosPareto) {
                     tension: 0.2,
                     order: 1,
                     datalabels: {
+                        display: "auto",
                         color: "#ff9100",
                         anchor: "end",
                         align: "top",
@@ -2903,9 +2999,38 @@ function datalabelsBarraCausas() {
     };
 }
 
+// Cresce a altura do wrapper do gráfico conforme a quantidade de itens da
+// legenda aumenta, pra a legenda nunca "comer" todo o espaço do gráfico e
+// forçar a área de desenho pra um tamanho inválido — o que já causou erro de
+// renderização no passado quando havia muitas causas cadastradas. A altura
+// original definida em CSS (340px / 420px) é preservada como piso mínimo.
+function ajustarAlturaGrafico(idCanvas, quantidadeItens) {
+    const canvas = document.getElementById(idCanvas);
+    const wrap = canvas && canvas.closest(".dashboard-grafico-wrap");
+    if (!wrap) return;
+
+    const ITENS_CONFORTAVEIS = 8;
+    const ALTURA_POR_ITEM_EXTRA = 20;
+    const ALTURA_MAXIMA = 1400;
+
+    if (!wrap.dataset.alturaBase) {
+        wrap.dataset.alturaBase = wrap.clientHeight || 340;
+    }
+    const alturaBase = parseInt(wrap.dataset.alturaBase, 10);
+
+    const extras = Math.max(0, quantidadeItens - ITENS_CONFORTAVEIS);
+    const altura = Math.min(ALTURA_MAXIMA, alturaBase + extras * ALTURA_POR_ITEM_EXTRA);
+
+    wrap.style.height = altura + "px";
+}
+
 function criarGraficoBarrasCausas(idCanvas, labels, datasets, mostrarLegenda) {
     if (!labels.length) return null;
     if (mostrarLegenda === undefined) mostrarLegenda = true;
+
+    if (mostrarLegenda) {
+        ajustarAlturaGrafico(idCanvas, datasets.length);
+    }
 
     const maiorValor = datasets.reduce(function(maior, ds) {
         return Math.max(maior, ds.data.reduce(function(m, v) { return Math.max(m, v || 0); }, 0));
@@ -3061,7 +3186,16 @@ function escaparHtml(texto) {
 function exportarDashboardExcel(aba) {
     const seletor = document.getElementById(aba + "-filtro-ano");
     const ano = seletor ? seletor.value : "todos";
-    window.location.href = "/painel-qualidade/exportar-excel/" + aba + "?ano=" + encodeURIComponent(ano);
+    let url = "/painel-qualidade/exportar-excel/" + aba + "?ano=" + encodeURIComponent(ano);
+
+    if (aba === "combinado") {
+        const seletorCausasAno = document.getElementById("combinado-filtro-ano-causas");
+        if (seletorCausasAno && seletorCausasAno.value) {
+            url += "&ano_causas=" + encodeURIComponent(seletorCausasAno.value);
+        }
+    }
+
+    window.location.href = url;
 }
 
 // Filtro próprio do widget "4 Causas Principais por Ano": independente do

@@ -47,6 +47,22 @@ const PALETA_CORES_CAUSAS = [
     "#f43f5e", "#10b981", "#6366f1", "#fb923c", "#c026d3", "#65a30d"
 ];
 
+// Além da paleta curada acima, gera cores extras automaticamente pra suportar
+// qualquer quantidade de causas sem repetir: distribui o matiz pelo círculo
+// de cores usando o ângulo áureo (~137,5°), que mantém boa distinção visual
+// mesmo entre dezenas de cores geradas em sequência.
+function corGeradaPorIndice(indiceExtra) {
+    const matiz = (indiceExtra * 137.508) % 360;
+    return "hsl(" + matiz.toFixed(1) + ", 65%, 55%)";
+}
+
+function corPorIndice(indice) {
+    if (indice < PALETA_CORES_CAUSAS.length) {
+        return PALETA_CORES_CAUSAS[indice];
+    }
+    return corGeradaPorIndice(indice - PALETA_CORES_CAUSAS.length);
+}
+
 const MAPA_CORES_CAUSAS = {};
 
 function registrarCoresCausas(lista) {
@@ -54,7 +70,7 @@ function registrarCoresCausas(lista) {
         const chave = (causa || "").trim().toLowerCase();
         if (chave && !(chave in MAPA_CORES_CAUSAS)) {
             const indice = Object.keys(MAPA_CORES_CAUSAS).length;
-            MAPA_CORES_CAUSAS[chave] = PALETA_CORES_CAUSAS[indice % PALETA_CORES_CAUSAS.length];
+            MAPA_CORES_CAUSAS[chave] = corPorIndice(indice);
         }
     });
 }
@@ -67,11 +83,14 @@ function corParaCausa(texto) {
         return MAPA_CORES_CAUSAS[chave];
     }
 
+    // Causa não registrada previamente via registrarCoresCausas (rede de
+    // segurança): usa hash do nome pra sempre cair na mesma cor, num espaço
+    // de 360 posições em vez da paleta pequena, reduzindo bastante colisões.
     let hash = 0;
     for (let i = 0; i < chave.length; i++) {
         hash = (hash * 31 + chave.charCodeAt(i)) >>> 0;
     }
-    const cor = PALETA_CORES_CAUSAS[hash % PALETA_CORES_CAUSAS.length];
+    const cor = corPorIndice(hash % 360);
     MAPA_CORES_CAUSAS[chave] = cor;
     return cor;
 }

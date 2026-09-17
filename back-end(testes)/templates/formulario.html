@@ -19,8 +19,9 @@
         }
 
         .form-container {
-            max-width: 600px;
-            margin: auto;
+            width: 96%;
+            max-width: 1400px;
+            margin: 40px auto;
             background: #1e1e1e;
             padding: 30px;
             border-radius: 10px;
@@ -31,6 +32,53 @@
             margin-top: 0;
             margin-bottom: 25px;
             color: #ffffff;
+        }
+
+        .abas {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #333;
+            flex-wrap: wrap;
+        }
+
+        .aba-btn {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #999;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .aba-btn:hover {
+            color: #dddddd;
+        }
+
+        .aba-btn.ativa {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+
+        .aba-conteudo {
+            display: none;
+        }
+
+        .aba-conteudo.ativa {
+            display: block;
+        }
+
+        .form-linha-dupla {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-linha-dupla .form-group {
+            flex: 1;
+            min-width: 0;
         }
 
         .form-group {
@@ -393,7 +441,7 @@
             margin-top: 30px;
             padding: 20px;
             background: rgba(255, 145, 0, 0.08);
-            border: 2px solid #ff9100;
+            border: 1px solid rgba(255, 145, 0, 0.4);
             border-radius: 8px;
         }
 
@@ -509,6 +557,11 @@
             .form-container {
                 padding: 20px;
             }
+
+            .form-linha-dupla {
+                flex-direction: column;
+                gap: 0;
+            }
         }
     </style>
 </head>
@@ -523,6 +576,14 @@
         {% endif %}
 
         <form id="form-ficha" action="/formulario" method="POST" enctype="multipart/form-data">
+
+            <div class="abas">
+                <button type="button" class="aba-btn ativa" data-aba="dados" onclick="mostrarAba('dados')">Dados do Cliente</button>
+                <button type="button" class="aba-btn" data-aba="produtos" onclick="mostrarAba('produtos')">Produtos e Relato</button>
+                <button type="button" class="aba-btn" data-aba="causa" onclick="mostrarAba('causa')">Causa Principal</button>
+            </div>
+
+            <div class="aba-conteudo ativa" data-aba="dados">
 
             <div class="form-group">
                 <label>Unidade</label>
@@ -540,26 +601,27 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="numero">Nº</label>
-                <input
-                    type="text"
-                    id="numero"
-                    name="numero"
-                    value="{{ dados.numero if dados else '' }}"
-                    required
-                >
-            </div>
+            <div class="form-linha-dupla">
+                <div class="form-group">
+                    <label for="numero">Nº</label>
+                    <input
+                        type="text"
+                        id="numero"
+                        name="numero"
+                        value="{{ dados.numero if dados else '' }}"
+                        required
+                    >
+                </div>
 
-            <div class="form-group">
-                <label for="nota_fiscal">Nota Fiscal</label>
-                <input
-                    type="text"
-                    id="nota_fiscal"
-                    name="nota_fiscal"
-                    value="{{ dados.nota_fiscal if dados else '' }}"
-                >
-                <p class="dica">Ao sair do campo, o cliente e os produtos da nota são preenchidos automaticamente, se encontrados.</p>
+                <div class="form-group">
+                    <label for="nota_fiscal">Nota Fiscal</label>
+                    <input
+                        type="text"
+                        id="nota_fiscal"
+                        name="nota_fiscal"
+                        value="{{ dados.nota_fiscal if dados else '' }}"
+                    >
+                </div>
             </div>
 
             <div class="form-group">
@@ -583,27 +645,29 @@
                 <button type="button" class="btn-adicionar-email" onclick="adicionarCampoEmail()">+ Adicionar e-mail</button>
             </div>
 
-            <div class="form-group">
-                <label for="cpf ou cnpj">CPF ou CNPJ</label>
-                <input type="text"
-                    id="cpf_cnpj"
-                    name="cpf_cnpj"
-                    maxlength="18"
-                    placeholder="000.000.000-00"
-                    required>
-            </div>
+            <div class="form-linha-dupla">
+                <div class="form-group">
+                    <label for="cpf ou cnpj">CPF ou CNPJ</label>
+                    <input type="text"
+                        id="cpf_cnpj"
+                        name="cpf_cnpj"
+                        maxlength="18"
+                        placeholder="000.000.000-00"
+                        required>
+                </div>
 
-            <div class="form-group">
-                <label for="telefone">Telefone</label>
-                <input
-                    type="tel"
-                    id="telefone"
-                    name="telefone"
-                    maxlength="15"
-                    placeholder="(00) 00000-0000"
-                >
-                <p class="dica">Informe pelo menos um e-mail ou telefone.</p>
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input
+                        type="tel"
+                        id="telefone"
+                        name="telefone"
+                        maxlength="15"
+                        placeholder="(00) 00000-0000"
+                    >
+                </div>
             </div>
+            <p class="dica">Informe pelo menos um e-mail ou telefone.</p>
 
             <div class="form-group">
                 <label for="endereco">Endereço</label>
@@ -642,6 +706,10 @@
                     name="vendedor"
                 >
             </div>
+
+            </div>
+
+            <div class="aba-conteudo" data-aba="produtos">
 
             <div class="form-group">
                 <label>Produtos defeituosos</label>
@@ -702,6 +770,10 @@
                 <ul class="lista-midia" id="lista-anexos"></ul>
             </div>
 
+            </div>
+
+            <div class="aba-conteudo" data-aba="causa">
+
             <div class="form-group campo-causa-destaque">
                 <label for="causa_principal">Causa Principal</label>
 
@@ -731,6 +803,8 @@
                     <p class="dica">Nenhuma causa cadastrada ainda.</p>
                     {% endif %}
                 </div>
+            </div>
+
             </div>
 
             <button type="submit">Enviar</button>
@@ -916,6 +990,22 @@
             document.getElementById("causa_principal").value = nome;
             mostrarAbaCausa("nova");
         }
+
+        function mostrarAba(nome) {
+            document.querySelectorAll(".aba-btn").forEach(function(botao) {
+                botao.classList.toggle("ativa", botao.dataset.aba === nome);
+            });
+            document.querySelectorAll(".aba-conteudo").forEach(function(conteudo) {
+                conteudo.classList.toggle("ativa", conteudo.dataset.aba === nome);
+            });
+        }
+
+        document.getElementById("form-ficha").addEventListener("invalid", function(evento) {
+            const abaConteudo = evento.target.closest(".aba-conteudo");
+            if (abaConteudo && !abaConteudo.classList.contains("ativa")) {
+                mostrarAba(abaConteudo.dataset.aba);
+            }
+        }, true);
 
         let anexosSelecionados = [];
 
