@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from CRUD import (
     buscar_RDC, criar_tabela, adicionar_RDC, listar_RDC, deletar_RDC, editar_RDC,
     adicionar_foto, listar_fotos, listar_fotos_conteudo, buscar_foto, remover_foto, autenticar_usuario,
-    SETOR_QUALIDADE, listar_RDC_qualidade, adicionar_acao_corretiva, listar_acoes_corretivas,
+    SETOR_SAC, SETOR_QUALIDADE, listar_RDC_qualidade, adicionar_acao_corretiva, listar_acoes_corretivas,
     atualizar_acao_individual, editar_acao_corretiva, remover_acao_corretiva,
     listar_causas_distintas, contar_rdc_por_causa, contar_rdc_sem_causa, contar_rdc_por_ano,
     listar_reclamacoes_por_mes, listar_causas_por_mes, contar_causas_unidade,
@@ -424,7 +424,8 @@ def login():
         session["usuario_nome"] = linha[1]
         session["usuario_setor"] = linha[3]
 
-        proximo = request.args.get("proximo") or url_for("lista")
+        destino_padrao = url_for("painel_qualidade") if linha[3] == SETOR_QUALIDADE else url_for("lista")
+        proximo = request.args.get("proximo") or destino_padrao
         return redirect(proximo)
 
     return render_template("login.html")
@@ -541,6 +542,7 @@ def servir_foto(foto_id):
 
 @app.route("/lista")
 @login_required
+@setor_required(SETOR_SAC)
 def lista():
     rdcs = listar_RDC()
     return render_template("lista.html", rdcs=rdcs, causas=listar_causas_distintas())
