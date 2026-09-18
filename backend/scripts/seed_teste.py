@@ -1,17 +1,20 @@
 import os
 import random
 import struct
+import sys
 import uuid
 import zlib
 from datetime import date, timedelta
+
+RAIZ_BACKEND = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, RAIZ_BACKEND)
 
 from CRUD import (
     adicionar_RDC, adicionar_foto, adicionar_acao_corretiva,
     atualizar_acao_individual, conectar
 )
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PASTA_UPLOADS = os.path.join(BASE_DIR, "static", "uploads")
+PASTA_UPLOADS = os.path.join(RAIZ_BACKEND, "static", "uploads")
 os.makedirs(PASTA_UPLOADS, exist_ok=True)
 
 PRIMEIROS_NOMES = [

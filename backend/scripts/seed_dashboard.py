@@ -1,5 +1,9 @@
+import os
 import random
+import sys
 from datetime import date, timedelta
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from CRUD import adicionar_RDC, adicionar_acao_corretiva, atualizar_acao_individual, conectar
 from seed_teste import (

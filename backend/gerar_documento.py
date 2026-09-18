@@ -8,7 +8,7 @@ from docx.shared import Inches
 from docx.image.image import Image as ImagemDocx
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CAMINHO_MODELO = os.path.join(BASE_DIR, "modelo", "Ficha_Reclamacao_Modelo_Padrao_1.docx")
+CAMINHO_MODELO = os.path.join(BASE_DIR, "data", "modelo", "Ficha_Reclamacao_Modelo_Padrao_1.docx")
 
 MARGEM_SEGURANCA_POLEGADAS = 0.3
 DPI_PADRAO = 96

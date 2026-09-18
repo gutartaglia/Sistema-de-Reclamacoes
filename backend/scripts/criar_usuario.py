@@ -1,5 +1,10 @@
 import argparse
 import getpass
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from CRUD import criar_tabela, criar_usuario, SETOR_SAC, SETORES_VALIDOS
 
 def main():

@@ -1,16 +1,18 @@
-"""Importa o faturamento (aba "2-Analitico - Itens") de notas fiscais/matr550.xlsx
+"""Importa o faturamento (aba "2-Analitico - Itens") de data/notas_fiscais/matr550.xlsx
 para a tabela notas_fiscais_itens do banco local. Pode ser rodado de novo a qualquer
 momento para recarregar os dados a partir de uma planilha atualizada (apaga e reinsere)."""
 
 import os
 import sys
 
+RAIZ_BACKEND = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, RAIZ_BACKEND)
+
 import openpyxl
 
 from CRUD import conectar, criar_tabela
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CAMINHO_PLANILHA = os.path.join(BASE_DIR, "notas fiscais", "matr550.xlsx")
+CAMINHO_PLANILHA = os.path.join(RAIZ_BACKEND, "data", "notas_fiscais", "matr550.xlsx")
 ABA_ITENS = "2-Analitico - Itens"
 PRIMEIRA_LINHA_DADOS = 3
 
